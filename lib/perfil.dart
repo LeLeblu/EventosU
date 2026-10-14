@@ -1,9 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'barra_navegacion.dart';
+
+const Color colorPerfil = Color(0xFF5263FA);
+const Color colorTextoPerfil = Color(0xFF222222);
 
 class Perfil extends StatefulWidget {
   const Perfil({super.key});
@@ -13,77 +17,30 @@ class Perfil extends StatefulWidget {
 }
 
 class _PerfilState extends State<Perfil> {
-  final TextEditingController nombreController = TextEditingController(
-    text: 'Usuario de Eventos',
-  );
+  final TextEditingController nombreController =
+      TextEditingController(text: 'Yoly Mancera');
 
-  final TextEditingController correoController = TextEditingController(
-    text: 'usuario@correo.com',
-  );
+  final TextEditingController correoController =
+      TextEditingController(text: 'Yoly@correo.com');
 
-  final TextEditingController passwordController = TextEditingController(
-    text: '123456',
-  );
+  final TextEditingController programaController =
+      TextEditingController(text: 'Desarrollo de software');
 
   final ImagePicker picker = ImagePicker();
 
   File? fotoPerfil;
-
   bool modoEdicion = false;
-  bool ocultarPassword = true;
 
   Future<void> cambiarFoto() async {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return SafeArea(
-          child: Wrap(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text('Tomar foto'),
-                onTap: () async {
-                  Navigator.pop(context);
-
-                  final XFile? imagen = await picker.pickImage(
-                    source: ImageSource.camera,
-                  );
-
-                  if (imagen != null) {
-                    setState(() {
-                      fotoPerfil = File(imagen.path);
-                    });
-                  }
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text('Seleccionar de galería'),
-                onTap: () async {
-                  Navigator.pop(context);
-
-                  final XFile? imagen = await picker.pickImage(
-                    source: ImageSource.gallery,
-                  );
-
-                  if (imagen != null) {
-                    setState(() {
-                      fotoPerfil = File(imagen.path);
-                    });
-                  }
-                },
-              ),
-            ],
-          ),
-        );
-      },
+    final XFile? imagen = await picker.pickImage(
+      source: ImageSource.gallery,
     );
-  }
 
-  void editarPerfil() {
-    setState(() {
-      modoEdicion = true;
-    });
+    if (imagen != null && mounted) {
+      setState(() {
+        fotoPerfil = File(imagen.path);
+      });
+    }
   }
 
   void guardarPerfil() {
@@ -92,7 +49,54 @@ class _PerfilState extends State<Perfil> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Información actualizada correctamente')),
+      const SnackBar(
+        content: Text('Información actualizada en esta demostración'),
+      ),
+    );
+  }
+
+  Widget textoPerfil(String texto, {bool negrita = false}) {
+    return Text(
+      texto,
+      style: GoogleFonts.poppins(
+        fontSize: 12,
+        color: colorTextoPerfil,
+        fontWeight: negrita ? FontWeight.w600 : FontWeight.normal,
+      ),
+    );
+  }
+
+  Widget filaPerfil({
+    required IconData icono,
+    required String titulo,
+    required Widget contenido,
+    VoidCallback? onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 15),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(icono, color: colorPerfil, size: 23),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                textoPerfil(titulo, negrita: true),
+                const SizedBox(height: 2),
+                contenido,
+              ],
+            ),
+          ),
+          if (onTap != null)
+            Icon(
+              Icons.chevron_right,
+              color: Colors.grey.shade700,
+              size: 23,
+            ),
+        ],
+      ),
     );
   }
 
@@ -100,133 +104,274 @@ class _PerfilState extends State<Perfil> {
   void dispose() {
     nombreController.dispose();
     correoController.dispose();
-    passwordController.dispose();
+    programaController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+
+      // Se conserva la barra de navegación existente.
       bottomNavigationBar: const BarraNavegacion(indiceActual: 3),
-      appBar: AppBar(title: const Text('Mi perfil'), centerTitle: true),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            const SizedBox(height: 10),
 
-            const Text(
-              'MI PERFIL',
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 25),
-
-            CircleAvatar(
-              radius: 65,
-              backgroundColor: Colors.blue.shade100,
-              backgroundImage: fotoPerfil != null
-                  ? FileImage(fotoPerfil!)
-                  : null,
-              child: fotoPerfil == null
-                  ? const Icon(Icons.person, size: 70, color: Colors.blue)
-                  : null,
-            ),
-
-            const SizedBox(height: 10),
-
-            TextButton.icon(
-              onPressed: modoEdicion ? cambiarFoto : null,
-              icon: const Icon(Icons.camera_alt),
-              label: const Text('Cambiar foto'),
-            ),
-
-            const SizedBox(height: 25),
-
-            TextField(
-              controller: nombreController,
-              enabled: modoEdicion,
-              decoration: const InputDecoration(
-                labelText: 'Nombre',
-                prefixIcon: Icon(Icons.person),
-                border: OutlineInputBorder(),
+      body: Stack(
+        children: [
+          // Encabezado azul morado.
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 235,
+            child: Container(
+              decoration: const BoxDecoration(
+                color: colorPerfil,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(22),
+                  bottomRight: Radius.circular(22),
+                ),
               ),
             ),
+          ),
 
-            const SizedBox(height: 15),
-
-            TextField(
-              controller: correoController,
-              enabled: modoEdicion,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                labelText: 'Correo electrónico',
-                prefixIcon: Icon(Icons.email),
-                border: OutlineInputBorder(),
-              ),
-            ),
-
-            const SizedBox(height: 15),
-
-            TextField(
-              controller: passwordController,
-              enabled: modoEdicion,
-              obscureText: ocultarPassword,
-              decoration: InputDecoration(
-                labelText: 'Contraseña',
-                prefixIcon: const Icon(Icons.lock),
-                border: const OutlineInputBorder(),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    ocultarPassword ? Icons.visibility : Icons.visibility_off,
+          SafeArea(
+            bottom: false,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(18, 8, 18, 20),
+              child: Column(
+                children: [
+                  // Título y notificaciones.
+                  Row(
+                    children: [
+                      Text(
+                        'Mi perfil',
+                        style: GoogleFonts.poppins(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const Spacer(),
+                      Container(
+                        width: 42,
+                        height: 42,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          tooltip: 'Notificaciones',
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'No tienes notificaciones nuevas',
+                                ),
+                              ),
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.notifications_active_outlined,
+                            color: colorPerfil,
+                            size: 22,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  onPressed: () {
-                    setState(() {
-                      ocultarPassword = !ocultarPassword;
-                    });
-                  },
-                ),
+
+                  const SizedBox(height: 12),
+
+                  // Foto de perfil y botón para editar.
+                  Center(
+                    child: SizedBox(
+                      width: 112,
+                      height: 112,
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 56,
+                            backgroundColor: Colors.black,
+                            backgroundImage: fotoPerfil != null
+                                ? FileImage(fotoPerfil!)
+                                : null,
+                            child: fotoPerfil == null
+                                ? const Icon(
+                                    Icons.person,
+                                    color: Colors.white70,
+                                    size: 62,
+                                  )
+                                : null,
+                          ),
+                          Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: Material(
+                              color: Colors.white,
+                              shape: const CircleBorder(),
+                              child: IconButton(
+                                tooltip: 'Cambiar foto',
+                                onPressed: cambiarFoto,
+                                icon: const Icon(
+                                  Icons.edit,
+                                  color: Colors.black87,
+                                  size: 18,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Tarjeta de información.
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.18),
+                          blurRadius: 5,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        filaPerfil(
+                          icono: Icons.calendar_month,
+                          titulo: 'Eventos Asistidos',
+                          contenido: textoPerfil('12'),
+                        ),
+
+                        filaPerfil(
+                          icono: Icons.person,
+                          titulo: 'Nombre',
+                          contenido: modoEdicion
+                              ? TextField(
+                                  controller: nombreController,
+                                  style: GoogleFonts.poppins(fontSize: 12),
+                                  decoration: const InputDecoration(
+                                    isDense: true,
+                                    border: OutlineInputBorder(),
+                                  ),
+                                )
+                              : textoPerfil(nombreController.text),
+                        ),
+
+                        filaPerfil(
+                          icono: Icons.alternate_email,
+                          titulo: 'Correo',
+                          contenido: modoEdicion
+                              ? TextField(
+                                  controller: correoController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  style: GoogleFonts.poppins(fontSize: 12),
+                                  decoration: const InputDecoration(
+                                    isDense: true,
+                                    border: OutlineInputBorder(),
+                                  ),
+                                )
+                              : textoPerfil(correoController.text),
+                        ),
+
+                        filaPerfil(
+                          icono: Icons.school_outlined,
+                          titulo: 'Programa',
+                          contenido: modoEdicion
+                              ? TextField(
+                                  controller: programaController,
+                                  style: GoogleFonts.poppins(fontSize: 12),
+                                  decoration: const InputDecoration(
+                                    isDense: true,
+                                    border: OutlineInputBorder(),
+                                  ),
+                                )
+                              : textoPerfil(
+                                  programaController.text,
+                                ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 22),
+
+                  // Botones de edición.
+                  if (modoEdicion)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                              setState(() {
+                                modoEdicion = false;
+                              });
+                            },
+                            child: const Text('Cancelar'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: guardarPerfil,
+                            child: const Text('Guardar'),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                  // Cerrar sesión.
+                  if (!modoEdicion)
+                    TextButton.icon(
+                      onPressed: () {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/login',
+                          (route) => false,
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.logout,
+                        color: Color(0xFFDC2626),
+                        size: 17,
+                      ),
+                      label: Text(
+                        'Cerrar sesión',
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: const Color(0xFFDC2626),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+
+                  if (!modoEdicion)
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          modoEdicion = true;
+                        });
+                      },
+                      child: Text(
+                        'Editar información',
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: colorPerfil,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
-
-            const SizedBox(height: 30),
-
-            if (!modoEdicion)
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton.icon(
-                  onPressed: editarPerfil,
-                  icon: const Icon(Icons.edit),
-                  label: const Text('EDITAR', style: TextStyle(fontSize: 16)),
-                ),
-              ),
-
-            if (modoEdicion)
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton.icon(
-                  onPressed: guardarPerfil,
-                  icon: const Icon(Icons.save),
-                  label: const Text('GUARDAR', style: TextStyle(fontSize: 16)),
-                ),
-              ),
-
-            const SizedBox(height: 20),
-
-            TextButton(
-              onPressed: () {
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/login',
-                  (route) => false,
-                );
-              },
-              child: const Text('Cerrar sesión'),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
