@@ -1,3 +1,4 @@
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -50,7 +51,9 @@ class _PerfilState extends State<Perfil> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Información actualizada en esta demostración'),
+        content: Text(
+          'Información actualizada en esta demostración',
+        ),
       ),
     );
   }
@@ -61,7 +64,8 @@ class _PerfilState extends State<Perfil> {
       style: GoogleFonts.poppins(
         fontSize: 12,
         color: colorTextoPerfil,
-        fontWeight: negrita ? FontWeight.w600 : FontWeight.normal,
+        fontWeight:
+            negrita ? FontWeight.w600 : FontWeight.normal,
       ),
     );
   }
@@ -72,30 +76,40 @@ class _PerfilState extends State<Perfil> {
     required Widget contenido,
     VoidCallback? onTap,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 15),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(icono, color: colorPerfil, size: 23),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                textoPerfil(titulo, negrita: true),
-                const SizedBox(height: 2),
-                contenido,
-              ],
-            ),
-          ),
-          if (onTap != null)
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: 9,
+          horizontal: 15,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
             Icon(
-              Icons.chevron_right,
-              color: Colors.grey.shade700,
+              icono,
+              color: colorPerfil,
               size: 23,
             ),
-        ],
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  textoPerfil(titulo, negrita: true),
+                  const SizedBox(height: 2),
+                  contenido,
+                ],
+              ),
+            ),
+            if (onTap != null)
+              Icon(
+                Icons.chevron_right,
+                color: Colors.grey.shade700,
+                size: 23,
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -112,10 +126,8 @@ class _PerfilState extends State<Perfil> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
-      // Se conserva la barra de navegación existente.
-      bottomNavigationBar: const BarraNavegacion(indiceActual: 3),
-
+      bottomNavigationBar:
+          const BarraNavegacion(indiceActual: 3),
       body: Stack(
         children: [
           // Encabezado azul morado.
@@ -138,7 +150,12 @@ class _PerfilState extends State<Perfil> {
           SafeArea(
             bottom: false,
             child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(18, 8, 18, 20),
+              padding: const EdgeInsets.fromLTRB(
+                18,
+                8,
+                18,
+                20,
+              ),
               child: Column(
                 children: [
                   // Título y notificaciones.
@@ -163,7 +180,8 @@ class _PerfilState extends State<Perfil> {
                         child: IconButton(
                           tooltip: 'Notificaciones',
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(
                               const SnackBar(
                                 content: Text(
                                   'No tienes notificaciones nuevas',
@@ -236,7 +254,9 @@ class _PerfilState extends State<Perfil> {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.18),
+                          color: Colors.black.withValues(
+                            alpha: 0.18,
+                          ),
                           blurRadius: 5,
                           offset: const Offset(0, 3),
                         ),
@@ -250,45 +270,83 @@ class _PerfilState extends State<Perfil> {
                           contenido: textoPerfil('12'),
                         ),
 
+                        // Nombre con flecha a la derecha.
                         filaPerfil(
                           icono: Icons.person,
                           titulo: 'Nombre',
+                          onTap: () {
+                            if (!modoEdicion) {
+                              setState(() {
+                                modoEdicion = true;
+                              });
+                            }
+                          },
                           contenido: modoEdicion
                               ? TextField(
                                   controller: nombreController,
-                                  style: GoogleFonts.poppins(fontSize: 12),
-                                  decoration: const InputDecoration(
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                  ),
+                                  decoration:
+                                      const InputDecoration(
                                     isDense: true,
                                     border: OutlineInputBorder(),
                                   ),
                                 )
-                              : textoPerfil(nombreController.text),
+                              : textoPerfil(
+                                  nombreController.text,
+                                ),
                         ),
 
+                        // Correo con flecha a la derecha.
                         filaPerfil(
                           icono: Icons.alternate_email,
                           titulo: 'Correo',
+                          onTap: () {
+                            if (!modoEdicion) {
+                              setState(() {
+                                modoEdicion = true;
+                              });
+                            }
+                          },
                           contenido: modoEdicion
                               ? TextField(
                                   controller: correoController,
-                                  keyboardType: TextInputType.emailAddress,
-                                  style: GoogleFonts.poppins(fontSize: 12),
-                                  decoration: const InputDecoration(
+                                  keyboardType:
+                                      TextInputType.emailAddress,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                  ),
+                                  decoration:
+                                      const InputDecoration(
                                     isDense: true,
                                     border: OutlineInputBorder(),
                                   ),
                                 )
-                              : textoPerfil(correoController.text),
+                              : textoPerfil(
+                                  correoController.text,
+                                ),
                         ),
 
+                        // Programa con flecha a la derecha.
                         filaPerfil(
                           icono: Icons.school_outlined,
                           titulo: 'Programa',
+                          onTap: () {
+                            if (!modoEdicion) {
+                              setState(() {
+                                modoEdicion = true;
+                              });
+                            }
+                          },
                           contenido: modoEdicion
                               ? TextField(
                                   controller: programaController,
-                                  style: GoogleFonts.poppins(fontSize: 12),
-                                  decoration: const InputDecoration(
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                  ),
+                                  decoration:
+                                      const InputDecoration(
                                     isDense: true,
                                     border: OutlineInputBorder(),
                                   ),
