@@ -30,7 +30,12 @@ class _PerfilState extends State<Perfil> {
   final ImagePicker picker = ImagePicker();
 
   File? fotoPerfil;
-  bool modoEdicion = false;
+
+  // Identifica cuál campo se está editando.
+  String? campoEditando;
+
+  // Guarda el valor anterior para poder cancelar.
+  String? valorAnterior;
 
   Future<void> cambiarFoto() async {
     final XFile? imagen = await picker.pickImage(
@@ -44,9 +49,51 @@ class _PerfilState extends State<Perfil> {
     }
   }
 
-  void guardarPerfil() {
+  void iniciarEdicion(String campo) {
+    FocusManager.instance.primaryFocus?.unfocus();
+
     setState(() {
-      modoEdicion = false;
+      campoEditando = campo;
+
+      switch (campo) {
+        case 'Nombre':
+          valorAnterior = nombreController.text;
+          break;
+        case 'Correo':
+          valorAnterior = correoController.text;
+          break;
+        case 'Programa':
+          valorAnterior = programaController.text;
+          break;
+      }
+    });
+  }
+
+  void cancelarEdicion() {
+    setState(() {
+      switch (campoEditando) {
+        case 'Nombre':
+          nombreController.text = valorAnterior ?? '';
+          break;
+        case 'Correo':
+          correoController.text = valorAnterior ?? '';
+          break;
+        case 'Programa':
+          programaController.text = valorAnterior ?? '';
+          break;
+      }
+
+      campoEditando = null;
+      valorAnterior = null;
+    });
+  }
+
+  void guardarPerfil() {
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    setState(() {
+      campoEditando = null;
+      valorAnterior = null;
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -66,6 +113,29 @@ class _PerfilState extends State<Perfil> {
         color: colorTextoPerfil,
         fontWeight:
             negrita ? FontWeight.w600 : FontWeight.normal,
+      ),
+    );
+  }
+
+  Widget campoTexto({
+    required TextEditingController controller,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      autofocus: true,
+      style: GoogleFonts.poppins(
+        fontSize: 12,
+        color: colorTextoPerfil,
+      ),
+      decoration: const InputDecoration(
+        isDense: true,
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 10,
+          vertical: 10,
+        ),
+        border: OutlineInputBorder(),
       ),
     );
   }
@@ -114,6 +184,33 @@ class _PerfilState extends State<Perfil> {
     );
   }
 
+  Widget botonesEdicion() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: Row(
+        children: [
+          Expanded(
+            child: OutlinedButton(
+              onPressed: cancelarEdicion,
+              child: const Text('Cancelar'),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: ElevatedButton(
+              onPressed: guardarPerfil,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colorPerfil,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Guardar'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
     nombreController.dispose();
@@ -126,8 +223,10 @@ class _PerfilState extends State<Perfil> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+
       bottomNavigationBar:
           const BarraNavegacion(indiceActual: 3),
+
       body: Stack(
         children: [
           // Encabezado azul morado.
@@ -201,7 +300,7 @@ class _PerfilState extends State<Perfil> {
 
                   const SizedBox(height: 12),
 
-                  // Foto de perfil y botón para editar.
+                  // Foto de perfil.
                   Center(
                     child: SizedBox(
                       width: 112,
@@ -264,92 +363,57 @@ class _PerfilState extends State<Perfil> {
                     ),
                     child: Column(
                       children: [
+                        // Eventos asistidos.
                         filaPerfil(
                           icono: Icons.calendar_month,
                           titulo: 'Eventos Asistidos',
                           contenido: textoPerfil('12'),
                         ),
 
-                        // Nombre con flecha a la derecha.
+                        // Nombre.
                         filaPerfil(
                           icono: Icons.person,
                           titulo: 'Nombre',
-                          onTap: () {
-                            if (!modoEdicion) {
-                              setState(() {
-                                modoEdicion = true;
-                              });
-                            }
-                          },
-                          contenido: modoEdicion
-                              ? TextField(
+                          onTap: campoEditando == null
+                              ? () => iniciarEdicion('Nombre')
+                              : null,
+                          contenido: campoEditando == 'Nombre'
+                              ? campoTexto(
                                   controller: nombreController,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12,
-                                  ),
-                                  decoration:
-                                      const InputDecoration(
-                                    isDense: true,
-                                    border: OutlineInputBorder(),
-                                  ),
                                 )
                               : textoPerfil(
                                   nombreController.text,
                                 ),
                         ),
 
-                        // Correo con flecha a la derecha.
+                        // Correo.
                         filaPerfil(
                           icono: Icons.alternate_email,
                           titulo: 'Correo',
-                          onTap: () {
-                            if (!modoEdicion) {
-                              setState(() {
-                                modoEdicion = true;
-                              });
-                            }
-                          },
-                          contenido: modoEdicion
-                              ? TextField(
+                          onTap: campoEditando == null
+                              ? () => iniciarEdicion('Correo')
+                              : null,
+                          contenido: campoEditando == 'Correo'
+                              ? campoTexto(
                                   controller: correoController,
                                   keyboardType:
                                       TextInputType.emailAddress,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12,
-                                  ),
-                                  decoration:
-                                      const InputDecoration(
-                                    isDense: true,
-                                    border: OutlineInputBorder(),
-                                  ),
                                 )
                               : textoPerfil(
                                   correoController.text,
                                 ),
                         ),
 
-                        // Programa con flecha a la derecha.
+                        // Programa.
                         filaPerfil(
                           icono: Icons.school_outlined,
                           titulo: 'Programa',
-                          onTap: () {
-                            if (!modoEdicion) {
-                              setState(() {
-                                modoEdicion = true;
-                              });
-                            }
-                          },
-                          contenido: modoEdicion
-                              ? TextField(
+                          onTap: campoEditando == null
+                              ? () => iniciarEdicion('Programa')
+                              : null,
+                          contenido: campoEditando == 'Programa'
+                              ? campoTexto(
                                   controller: programaController,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12,
-                                  ),
-                                  decoration:
-                                      const InputDecoration(
-                                    isDense: true,
-                                    border: OutlineInputBorder(),
-                                  ),
                                 )
                               : textoPerfil(
                                   programaController.text,
@@ -359,34 +423,14 @@ class _PerfilState extends State<Perfil> {
                     ),
                   ),
 
+                  // Botones exclusivos del campo seleccionado.
+                  if (campoEditando != null)
+                    botonesEdicion(),
+
                   const SizedBox(height: 22),
 
-                  // Botones de edición.
-                  if (modoEdicion)
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () {
-                              setState(() {
-                                modoEdicion = false;
-                              });
-                            },
-                            child: const Text('Cancelar'),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: guardarPerfil,
-                            child: const Text('Guardar'),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                  // Cerrar sesión.
-                  if (!modoEdicion)
+                  // Cerrar sesión cuando no se está editando.
+                  if (campoEditando == null)
                     TextButton.icon(
                       onPressed: () {
                         Navigator.pushNamedAndRemoveUntil(
@@ -406,22 +450,6 @@ class _PerfilState extends State<Perfil> {
                           fontSize: 12,
                           color: const Color(0xFFDC2626),
                           fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-
-                  if (!modoEdicion)
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          modoEdicion = true;
-                        });
-                      },
-                      child: Text(
-                        'Editar información',
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          color: colorPerfil,
                         ),
                       ),
                     ),
