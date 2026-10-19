@@ -30,16 +30,13 @@ class _PerfilState extends State<Perfil> {
   final ImagePicker picker = ImagePicker();
 
   File? fotoPerfil;
-
-  // Identifica cuál campo se está editando.
   String? campoEditando;
-
-  // Guarda el valor anterior para poder cancelar.
   String? valorAnterior;
 
   Future<void> cambiarFoto() async {
     final XFile? imagen = await picker.pickImage(
       source: ImageSource.gallery,
+      imageQuality: 85,
     );
 
     if (imagen != null && mounted) {
@@ -86,6 +83,8 @@ class _PerfilState extends State<Perfil> {
       campoEditando = null;
       valorAnterior = null;
     });
+
+    FocusManager.instance.primaryFocus?.unfocus();
   }
 
   void guardarPerfil() {
@@ -109,7 +108,7 @@ class _PerfilState extends State<Perfil> {
     return Text(
       texto,
       style: GoogleFonts.poppins(
-        fontSize: 12,
+        fontSize: 13,
         color: colorTextoPerfil,
         fontWeight:
             negrita ? FontWeight.w600 : FontWeight.normal,
@@ -126,16 +125,36 @@ class _PerfilState extends State<Perfil> {
       keyboardType: keyboardType,
       autofocus: true,
       style: GoogleFonts.poppins(
-        fontSize: 12,
+        fontSize: 13,
         color: colorTextoPerfil,
       ),
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
         isDense: true,
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: 10,
-          vertical: 10,
+        filled: true,
+        fillColor: const Color(0xFFF5F6FF),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 12,
         ),
-        border: OutlineInputBorder(),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(
+            color: Color(0xFFD8DCFF),
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(
+            color: Color(0xFFD8DCFF),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(
+            color: colorPerfil,
+            width: 1.5,
+          ),
+        ),
       ),
     );
   }
@@ -148,18 +167,27 @@ class _PerfilState extends State<Perfil> {
   }) {
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          vertical: 9,
-          horizontal: 15,
+          vertical: 23,
+          horizontal: 17,
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(
-              icono,
-              color: colorPerfil,
-              size: 23,
+            Container(
+              width: 43,
+              height: 43,
+              decoration: BoxDecoration(
+                color: colorPerfil.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: Icon(
+                icono,
+                color: colorPerfil,
+                size: 23,
+              ),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -167,17 +195,19 @@ class _PerfilState extends State<Perfil> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   textoPerfil(titulo, negrita: true),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 5),
                   contenido,
                 ],
               ),
             ),
-            if (onTap != null)
+            if (onTap != null) ...[
+              const SizedBox(width: 6),
               Icon(
-                Icons.chevron_right,
-                color: Colors.grey.shade700,
-                size: 23,
+                Icons.chevron_right_rounded,
+                color: Colors.grey.shade600,
+                size: 25,
               ),
+            ],
           ],
         ),
       ),
@@ -186,12 +216,20 @@ class _PerfilState extends State<Perfil> {
 
   Widget botonesEdicion() {
     return Padding(
-      padding: const EdgeInsets.only(top: 20),
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
       child: Row(
         children: [
           Expanded(
             child: OutlinedButton(
               onPressed: cancelarEdicion,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: colorPerfil,
+                side: const BorderSide(color: colorPerfil),
+                padding: const EdgeInsets.symmetric(vertical: 13),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
               child: const Text('Cancelar'),
             ),
           ),
@@ -202,6 +240,10 @@ class _PerfilState extends State<Perfil> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: colorPerfil,
                 foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 13),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               child: const Text('Guardar'),
             ),
@@ -221,26 +263,30 @@ class _PerfilState extends State<Perfil> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
+    final double altoPantalla = MediaQuery.sizeOf(context).height;
 
+    // El fondo morado llega más abajo.
+    final double altoEncabezado =
+        (altoPantalla * 0.43).clamp(300.0, 350.0);
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FF),
+      resizeToAvoidBottomInset: true,
       bottomNavigationBar:
           const BarraNavegacion(indiceActual: 3),
-
       body: Stack(
         children: [
-          // Encabezado azul morado.
           Positioned(
             top: 0,
             left: 0,
             right: 0,
-            height: 235,
+            height: altoEncabezado,
             child: Container(
               decoration: const BoxDecoration(
                 color: colorPerfil,
                 borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(22),
-                  bottomRight: Radius.circular(22),
+                  bottomLeft: Radius.circular(28),
+                  bottomRight: Radius.circular(28),
                 ),
               ),
             ),
@@ -249,32 +295,43 @@ class _PerfilState extends State<Perfil> {
           SafeArea(
             bottom: false,
             child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(
-                18,
-                8,
-                18,
-                20,
-              ),
+              keyboardDismissBehavior:
+                  ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: const EdgeInsets.fromLTRB(18, 12, 18, 28),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Título y notificaciones.
+                  // Título y campana con fondo morado.
                   Row(
                     children: [
                       Text(
                         'Mi perfil',
                         style: GoogleFonts.poppins(
-                          fontSize: 22,
+                          fontSize: 23,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
                         ),
                       ),
                       const Spacer(),
                       Container(
-                        width: 42,
-                        height: 42,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
+                        width: 46,
+                        height: 46,
+                        decoration: BoxDecoration(
+                          color: colorPerfil,
                           shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(
+                                alpha: 0.15,
+                              ),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
                         ),
                         child: IconButton(
                           tooltip: 'Notificaciones',
@@ -290,36 +347,55 @@ class _PerfilState extends State<Perfil> {
                           },
                           icon: const Icon(
                             Icons.notifications_active_outlined,
-                            color: colorPerfil,
-                            size: 22,
+                            color: Colors.white,
+                            size: 24,
                           ),
                         ),
                       ),
                     ],
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 26),
 
                   // Foto de perfil.
                   Center(
                     child: SizedBox(
-                      width: 112,
-                      height: 112,
+                      width: 124,
+                      height: 124,
                       child: Stack(
                         children: [
-                          CircleAvatar(
-                            radius: 56,
-                            backgroundColor: Colors.black,
-                            backgroundImage: fotoPerfil != null
-                                ? FileImage(fotoPerfil!)
-                                : null,
-                            child: fotoPerfil == null
-                                ? const Icon(
-                                    Icons.person,
-                                    color: Colors.white70,
-                                    size: 62,
-                                  )
-                                : null,
+                          Container(
+                            width: 116,
+                            height: 116,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 4,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(
+                                    alpha: 0.15,
+                                  ),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: CircleAvatar(
+                              backgroundColor: const Color(0xFF30344D),
+                              backgroundImage: fotoPerfil != null
+                                  ? FileImage(fotoPerfil!)
+                                  : null,
+                              child: fotoPerfil == null
+                                  ? const Icon(
+                                      Icons.person,
+                                      color: Colors.white70,
+                                      size: 64,
+                                    )
+                                  : null,
+                            ),
                           ),
                           Positioned(
                             right: 0,
@@ -327,13 +403,14 @@ class _PerfilState extends State<Perfil> {
                             child: Material(
                               color: Colors.white,
                               shape: const CircleBorder(),
+                              elevation: 3,
                               child: IconButton(
                                 tooltip: 'Cambiar foto',
                                 onPressed: cambiarFoto,
                                 icon: const Icon(
                                   Icons.edit,
-                                  color: Colors.black87,
-                                  size: 18,
+                                  color: colorPerfil,
+                                  size: 19,
                                 ),
                               ),
                             ),
@@ -343,36 +420,41 @@ class _PerfilState extends State<Perfil> {
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  // Más separación para bajar la tarjeta.
+                  const SizedBox(height: 38),
 
                   // Tarjeta de información.
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: const Color(0xFFEBEDFA),
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(
-                            alpha: 0.18,
-                          ),
-                          blurRadius: 5,
-                          offset: const Offset(0, 3),
+                          color: colorPerfil.withValues(alpha: 0.09),
+                          blurRadius: 18,
+                          offset: const Offset(0, 7),
                         ),
                       ],
                     ),
                     child: Column(
                       children: [
-                        // Eventos asistidos.
                         filaPerfil(
-                          icono: Icons.calendar_month,
-                          titulo: 'Eventos Asistidos',
+                          icono: Icons.calendar_month_rounded,
+                          titulo: 'Eventos asistidos',
                           contenido: textoPerfil('12'),
                         ),
-
-                        // Nombre.
+                        const Divider(
+                          height: 1,
+                          indent: 17,
+                          endIndent: 17,
+                          color: Color(0xFFEEEEF5),
+                        ),
                         filaPerfil(
-                          icono: Icons.person,
+                          icono: Icons.person_outline_rounded,
                           titulo: 'Nombre',
                           onTap: campoEditando == null
                               ? () => iniciarEdicion('Nombre')
@@ -381,14 +463,16 @@ class _PerfilState extends State<Perfil> {
                               ? campoTexto(
                                   controller: nombreController,
                                 )
-                              : textoPerfil(
-                                  nombreController.text,
-                                ),
+                              : textoPerfil(nombreController.text),
                         ),
-
-                        // Correo.
+                        const Divider(
+                          height: 1,
+                          indent: 17,
+                          endIndent: 17,
+                          color: Color(0xFFEEEEF5),
+                        ),
                         filaPerfil(
-                          icono: Icons.alternate_email,
+                          icono: Icons.alternate_email_rounded,
                           titulo: 'Correo',
                           onTap: campoEditando == null
                               ? () => iniciarEdicion('Correo')
@@ -399,12 +483,14 @@ class _PerfilState extends State<Perfil> {
                                   keyboardType:
                                       TextInputType.emailAddress,
                                 )
-                              : textoPerfil(
-                                  correoController.text,
-                                ),
+                              : textoPerfil(correoController.text),
                         ),
-
-                        // Programa.
+                        const Divider(
+                          height: 1,
+                          indent: 17,
+                          endIndent: 17,
+                          color: Color(0xFFEEEEF5),
+                        ),
                         filaPerfil(
                           icono: Icons.school_outlined,
                           titulo: 'Programa',
@@ -415,41 +501,43 @@ class _PerfilState extends State<Perfil> {
                               ? campoTexto(
                                   controller: programaController,
                                 )
-                              : textoPerfil(
-                                  programaController.text,
-                                ),
+                              : textoPerfil(programaController.text),
                         ),
+                        if (campoEditando != null) botonesEdicion(),
                       ],
                     ),
                   ),
 
-                  // Botones exclusivos del campo seleccionado.
-                  if (campoEditando != null)
-                    botonesEdicion(),
+                  const SizedBox(height: 24),
 
-                  const SizedBox(height: 22),
-
-                  // Cerrar sesión cuando no se está editando.
                   if (campoEditando == null)
-                    TextButton.icon(
-                      onPressed: () {
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          '/login',
-                          (route) => false,
-                        );
-                      },
-                      icon: const Icon(
-                        Icons.logout,
-                        color: Color(0xFFDC2626),
-                        size: 17,
-                      ),
-                      label: Text(
-                        'Cerrar sesión',
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          color: const Color(0xFFDC2626),
-                          fontWeight: FontWeight.w500,
+                    Center(
+                      child: TextButton.icon(
+                        onPressed: () {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            '/login',
+                            (route) => false,
+                          );
+                        },
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                        ),
+                        icon: const Icon(
+                          Icons.logout_rounded,
+                          color: Color(0xFFDC2626),
+                          size: 19,
+                        ),
+                        label: Text(
+                          'Cerrar sesión',
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            color: const Color(0xFFDC2626),
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ),

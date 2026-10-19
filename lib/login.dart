@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -45,230 +46,249 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    final altoPantalla = MediaQuery.of(context).size.height;
+
+    // Espacios adaptables al tamaño del dispositivo.
+    final espacioSuperior = (altoPantalla * 0.13).clamp(65.0, 100.0);
+    final espacioFormulario = (altoPantalla * 0.065).clamp(24.0, 48.0);
+    final espacioInferior = (altoPantalla * 0.06).clamp(20.0, 45.0);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Stack(
-          children: [
-            // Círculos decorativos superiores
-            Positioned(
-              top: -48,
-              right: 10,
-              child: Container(
-                width: 116,
-                height: 116,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF858BFA),
-                  shape: BoxShape.circle,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Stack(
+              children: [
+                // Círculos decorativos superiores
+                Positioned(
+                  top: -48,
+                  right: 10,
+                  child: Container(
+                    width: 116,
+                    height: 116,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF858BFA),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
                 ),
-              ),
-            ),
 
-            Positioned(
-              top: 20,
-              right: 92,
-              child: _circulo(9, colorLogin),
-            ),
+                Positioned(
+                  top: 20,
+                  right: 92,
+                  child: _circulo(9, colorLogin),
+                ),
 
-            Positioned(
-              top: 59,
-              right: 17,
-              child: _circulo(9, colorLogin),
-            ),
+                Positioned(
+                  top: 59,
+                  right: 17,
+                  child: _circulo(9, colorLogin),
+                ),
 
-            // Círculos decorativos inferiores
-            Positioned(
-              bottom: 67,
-              left: -43,
-              child: _circulo(86, const Color(0xFF858BFA)),
-            ),
+                // Círculos decorativos inferiores
+                Positioned(
+                  bottom: 67,
+                  left: -43,
+                  child: _circulo(86, const Color(0xFF858BFA)),
+                ),
 
-            Positioned(
-              bottom: -36,
-              left: 76,
-              child: _circulo(83, const Color(0xFF858BFA)),
-            ),
+                Positioned(
+                  bottom: -36,
+                  left: 76,
+                  child: _circulo(83, const Color(0xFF858BFA)),
+                ),
 
-            Positioned(
-              bottom: 8,
-              left: 25,
-              child: _circulo(13, colorLogin),
-            ),
+                Positioned(
+                  bottom: 8,
+                  left: 25,
+                  child: _circulo(13, colorLogin),
+                ),
 
-            // Contenido principal
-            SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 116),
-
-                  Text(
-                    '¡Hola de nuevo!',
-                    style: GoogleFonts.poppins(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
+                // Contenido adaptable y desplazable si hace falta
+                SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
                     ),
-                  ),
-
-                  const SizedBox(height: 2),
-
-                  Text(
-                    'Inicia sesión para continuar',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: Colors.black87,
-                    ),
-                  ),
-
-                  const SizedBox(height: 62),
-
-                  // Correo electrónico
-                  TextField(
-                    controller: correoController,
-                    keyboardType: TextInputType.emailAddress,
-                    style: GoogleFonts.poppins(fontSize: 14),
-                    decoration: InputDecoration(
-                      hintText: 'Correo electrónico',
-                      hintStyle: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: Colors.grey.shade500,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 14,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: Color(0xFFD0D0D5),
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: colorLogin,
-                          width: 1.5,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  // Contraseña
-                  TextField(
-                    controller: passwordController,
-                    obscureText: ocultarPassword,
-                    style: GoogleFonts.poppins(fontSize: 14),
-                    decoration: InputDecoration(
-                      hintText: 'Contraseña',
-                      hintStyle: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: Colors.grey.shade500,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 14,
-                      ),
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            ocultarPassword = !ocultarPassword;
-                          });
-                        },
-                        icon: Icon(
-                          ocultarPassword
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          size: 18,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: Color(0xFFD0D0D5),
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: colorLogin,
-                          width: 1.5,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  // Botón de inicio de sesión
-                  SizedBox(
-                    width: double.infinity,
-                    height: 42,
-                    child: ElevatedButton(
-                      onPressed: iniciarSesion,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colorLogin,
-                        foregroundColor: Colors.white,
-                        elevation: 1,
-                        padding: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(22),
-                          side: const BorderSide(
-                            color: Color(0xFF343434),
-                            width: 0.7,
-                          ),
-                        ),
-                      ),
-                      child: Text(
-                        'Iniciar sesión',
-                        style: GoogleFonts.poppins(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  // Enlace al registro
-                  Center(
-                    child: Wrap(
-                      alignment: WrapAlignment.center,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        SizedBox(height: espacioSuperior),
+
                         Text(
-                          '¿No tienes una cuenta? ',
+                          '¡Hola de nuevo!',
                           style: GoogleFonts.poppins(
-                            fontSize: 11,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
                             color: Colors.black,
                           ),
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(context, '/registro');
-                          },
-                          child: Text(
-                            'Regístrate aquí',
-                            style: GoogleFonts.poppins(
-                              fontSize: 11,
-                              color: colorLogin,
-                              fontWeight: FontWeight.w600,
+
+                        const SizedBox(height: 2),
+
+                        Text(
+                          'Inicia sesión para continuar',
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.black87,
+                          ),
+                        ),
+
+                        SizedBox(height: espacioFormulario),
+
+                        // Correo electrónico
+                        TextField(
+                          controller: correoController,
+                          keyboardType: TextInputType.emailAddress,
+                          style: GoogleFonts.poppins(fontSize: 14),
+                          decoration: InputDecoration(
+                            hintText: 'Correo electrónico',
+                            hintStyle: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: Colors.grey.shade500,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 14,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFD0D0D5),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(
+                                color: colorLogin,
+                                width: 1.5,
+                              ),
                             ),
                           ),
                         ),
+
+                        const SizedBox(height: 10),
+
+                        // Contraseña
+                        TextField(
+                          controller: passwordController,
+                          obscureText: ocultarPassword,
+                          style: GoogleFonts.poppins(fontSize: 14),
+                          decoration: InputDecoration(
+                            hintText: 'Contraseña',
+                            hintStyle: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: Colors.grey.shade500,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 14,
+                            ),
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  ocultarPassword = !ocultarPassword;
+                                });
+                              },
+                              icon: Icon(
+                                ocultarPassword
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
+                                size: 18,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFD0D0D5),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(
+                                color: colorLogin,
+                                width: 1.5,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        // Botón de inicio de sesión
+                        SizedBox(
+                          width: double.infinity,
+                          height: 42,
+                          child: ElevatedButton(
+                            onPressed: iniciarSesion,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: colorLogin,
+                              foregroundColor: Colors.white,
+                              elevation: 1,
+                              padding: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(22),
+                                side: const BorderSide(
+                                  color: Color(0xFF343434),
+                                  width: 0.7,
+                                ),
+                              ),
+                            ),
+                            child: Text(
+                              'Iniciar sesión',
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        // Enlace al registro
+                        Center(
+                          child: Wrap(
+                            alignment: WrapAlignment.center,
+                            children: [
+                              Text(
+                                '¿No tienes una cuenta? ',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 11,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    '/registro',
+                                  );
+                                },
+                                child: Text(
+                                  'Regístrate aquí',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 11,
+                                    color: colorLogin,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(height: espacioInferior),
                       ],
                     ),
                   ),
-
-                  const SizedBox(height: 100),
-                ],
-              ),
-            ),
-          ],
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

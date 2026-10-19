@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -144,208 +145,224 @@ class _RegistroState extends State<Registro> {
 
   @override
   Widget build(BuildContext context) {
+    final altoPantalla = MediaQuery.of(context).size.height;
+
+    // Espacios adaptados a la altura disponible.
+    final espacioSuperior = (altoPantalla * 0.10).clamp(48.0, 78.0);
+    final espacioFormulario = (altoPantalla * 0.035).clamp(16.0, 26.0);
+    final espacioInferior = (altoPantalla * 0.025).clamp(12.0, 22.0);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Stack(
-          children: [
-            // Decoración superior
-            Positioned(
-              top: -48,
-              right: 10,
-              child: circulo(116, const Color(0xFF858BFA)),
-            ),
-            Positioned(
-              top: 20,
-              right: 92,
-              child: circulo(9, colorRegistro),
-            ),
-            Positioned(
-              top: 59,
-              right: 17,
-              child: circulo(9, colorRegistro),
-            ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Stack(
+              children: [
+                // Decoración superior
+                Positioned(
+                  top: -48,
+                  right: 10,
+                  child: circulo(116, const Color(0xFF858BFA)),
+                ),
+                Positioned(
+                  top: 20,
+                  right: 92,
+                  child: circulo(9, colorRegistro),
+                ),
+                Positioned(
+                  top: 59,
+                  right: 17,
+                  child: circulo(9, colorRegistro),
+                ),
 
-            // Decoración inferior
-            Positioned(
-              bottom: 67,
-              left: -43,
-              child: circulo(86, const Color(0xFF858BFA)),
-            ),
-            Positioned(
-              bottom: -36,
-              left: 76,
-              child: circulo(83, const Color(0xFF858BFA)),
-            ),
-            Positioned(
-              bottom: 8,
-              left: 25,
-              child: circulo(13, colorRegistro),
-            ),
+                // Decoración inferior
+                Positioned(
+                  bottom: 67,
+                  left: -43,
+                  child: circulo(86, const Color(0xFF858BFA)),
+                ),
+                Positioned(
+                  bottom: -36,
+                  left: 76,
+                  child: circulo(83, const Color(0xFF858BFA)),
+                ),
+                Positioned(
+                  bottom: 8,
+                  left: 25,
+                  child: circulo(13, colorRegistro),
+                ),
 
-            // Formulario
-            SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 116),
-
-                  Text(
-                    'Crea tu cuenta',
-                    style: GoogleFonts.poppins(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
+                // Formulario adaptable
+                SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
                     ),
-                  ),
-
-                  const SizedBox(height: 2),
-
-                  Text(
-                    'Únete para explorar todos los eventos',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: Colors.black87,
-                    ),
-                  ),
-
-                  const SizedBox(height: 28),
-
-                  campoTexto(
-                    controller: nombreController,
-                    hint: 'Nombre completo',
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  campoTexto(
-                    controller: correoController,
-                    hint: 'Correo electrónico',
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  campoTexto(
-                    controller: programaController,
-                    hint: 'Programa al que pertenece',
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  campoTexto(
-                    controller: passwordController,
-                    hint: 'Contraseña',
-                    ocultar: ocultarPassword,
-                    sufijo: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          ocultarPassword = !ocultarPassword;
-                        });
-                      },
-                      icon: Icon(
-                        ocultarPassword
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        size: 18,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  campoTexto(
-                    controller: confirmarPasswordController,
-                    hint: 'Confirmar contraseña',
-                    ocultar: ocultarConfirmarPassword,
-                    sufijo: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          ocultarConfirmarPassword =
-                              !ocultarConfirmarPassword;
-                        });
-                      },
-                      icon: Icon(
-                        ocultarConfirmarPassword
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        size: 18,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  SizedBox(
-                    width: double.infinity,
-                    height: 42,
-                    child: ElevatedButton(
-                      onPressed: registrarUsuario,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colorRegistro,
-                        foregroundColor: Colors.white,
-                        elevation: 1,
-                        padding: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(22),
-                          side: const BorderSide(
-                            color: Color(0xFF343434),
-                            width: 0.7,
-                          ),
-                        ),
-                      ),
-                      child: Text(
-                        'Crear cuenta',
-                        style: GoogleFonts.poppins(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  Center(
-                    child: Wrap(
-                      alignment: WrapAlignment.center,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        SizedBox(height: espacioSuperior),
+
                         Text(
-                          '¿Ya tienes una cuenta? ',
+                          'Crea tu cuenta',
                           style: GoogleFonts.poppins(
-                            fontSize: 11,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
                             color: Colors.black,
                           ),
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamedAndRemoveUntil(
-                              context,
-                              '/login',
-                              (route) => false,
-                            );
-                          },
-                          child: Text(
-                            'Inicia sesión',
-                            style: GoogleFonts.poppins(
-                              fontSize: 11,
-                              color: colorRegistro,
-                              fontWeight: FontWeight.w600,
+
+                        const SizedBox(height: 2),
+
+                        Text(
+                          'Únete para explorar todos los eventos',
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.black87,
+                          ),
+                        ),
+
+                        SizedBox(height: espacioFormulario),
+
+                        campoTexto(
+                          controller: nombreController,
+                          hint: 'Nombre completo',
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        campoTexto(
+                          controller: correoController,
+                          hint: 'Correo electrónico',
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        campoTexto(
+                          controller: programaController,
+                          hint: 'Programa al que pertenece',
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        campoTexto(
+                          controller: passwordController,
+                          hint: 'Contraseña',
+                          ocultar: ocultarPassword,
+                          sufijo: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                ocultarPassword = !ocultarPassword;
+                              });
+                            },
+                            icon: Icon(
+                              ocultarPassword
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                              size: 18,
+                              color: Colors.grey,
                             ),
                           ),
                         ),
+
+                        const SizedBox(height: 10),
+
+                        campoTexto(
+                          controller: confirmarPasswordController,
+                          hint: 'Confirmar contraseña',
+                          ocultar: ocultarConfirmarPassword,
+                          sufijo: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                ocultarConfirmarPassword =
+                                    !ocultarConfirmarPassword;
+                              });
+                            },
+                            icon: Icon(
+                              ocultarConfirmarPassword
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                              size: 18,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        SizedBox(
+                          width: double.infinity,
+                          height: 42,
+                          child: ElevatedButton(
+                            onPressed: registrarUsuario,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: colorRegistro,
+                              foregroundColor: Colors.white,
+                              elevation: 1,
+                              padding: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(22),
+                                side: const BorderSide(
+                                  color: Color(0xFF343434),
+                                  width: 0.7,
+                                ),
+                              ),
+                            ),
+                            child: Text(
+                              'Crear cuenta',
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        Center(
+                          child: Wrap(
+                            alignment: WrapAlignment.center,
+                            children: [
+                              Text(
+                                '¿Ya tienes una cuenta? ',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 11,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.pushNamedAndRemoveUntil(
+                                    context,
+                                    '/login',
+                                    (route) => false,
+                                  );
+                                },
+                                child: Text(
+                                  'Inicia sesión',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 11,
+                                    color: colorRegistro,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(height: espacioInferior),
                       ],
                     ),
                   ),
-
-                  const SizedBox(height: 90),
-                ],
-              ),
-            ),
-          ],
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
