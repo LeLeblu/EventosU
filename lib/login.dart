@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Login extends StatefulWidget {
-  const Login({super.key});
+  const Login({super.key}); // Constructor de la clase Login
 
   @override
   State<Login> createState() => _LoginState();
@@ -11,9 +11,9 @@ class _LoginState extends State<Login> {
   final TextEditingController correoController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  bool ocultarPassword = true;
+  bool ocultarPassword = true; // Variable para controlar la visibilidad de la contraseña
 
-  void iniciarSesion() {
+  void iniciarSesion() { // Función para manejar el inicio de sesión
     String correo = correoController.text.trim();
     String password = passwordController.text;
 
@@ -59,7 +59,7 @@ class _LoginState extends State<Login> {
             ),
 
             const SizedBox(height: 40),
-
+             // Campo de texto para el correo electrónico
             TextField(
               controller: correoController,
               keyboardType: TextInputType.emailAddress,
@@ -72,7 +72,7 @@ class _LoginState extends State<Login> {
             ),
 
             const SizedBox(height: 20),
-
+             // Campo de texto para la contraseña con opción de mostrar/ocultar
             TextField(
               controller: passwordController,
               obscureText: ocultarPassword,
@@ -85,7 +85,7 @@ class _LoginState extends State<Login> {
                     ocultarPassword ? Icons.visibility : Icons.visibility_off,
                   ),
                   onPressed: () {
-                    setState(() {
+                    setState(() {  // Cambia el estado de la visibilidad de la contraseña
                       ocultarPassword = !ocultarPassword;
                     });
                   },

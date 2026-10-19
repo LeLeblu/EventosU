@@ -127,13 +127,13 @@ class MisEventosScreen extends StatelessWidget {
                     label: const Text('Cancelar'),
                     onPressed: () => mostrarDemo(
                       context,
-                      'Cancelación de ejemplo',
-                      'Esta demostración no cancela la inscripción a ${e.nombre}.',
+                      'Cancelación realizada',
+                      'Se ha cancelado tu inscripción al evento "${e.nombre}".',
                     ),
                   ),
                 ),
               ],
-            ),
+            ), // Botón para agregar al calendario
             Center(
               child: TextButton.icon(
                 icon: const Icon(Icons.calendar_month),

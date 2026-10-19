@@ -27,7 +27,7 @@ class EventosApp extends StatelessWidget {
 
       initialRoute: '/login',
 
-      routes: {
+      routes: { // Define las rutas de la aplicación
         '/registro': (context) => const Registro(),
         '/login': (context) => const Login(),
         '/perfil': (context) => const Perfil(),

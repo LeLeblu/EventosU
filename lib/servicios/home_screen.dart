@@ -55,9 +55,12 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
           ),
+
+          // Lista de eventos de ejemplo
           for (final evento in eventosMock)
             EventoCard(
               evento: evento,
+              // Al tocar la tarjeta, se abre la pantalla de detalle del evento
               onTap: () => _abrirDetalle(context, evento),
             ),
           const SizedBox(height: 16),

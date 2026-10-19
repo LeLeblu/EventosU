@@ -56,6 +56,7 @@ class _PerfilState extends State<Perfil> {
                   }
                 },
               ),
+              // ListTile para seleccionar una foto de la galería del dispositivo. Al tocarlo, se cierra el modal y se abre la galería para que el usuario elija una imagen. Si se selecciona una imagen, se actualiza la foto de perfil en la interfaz.
               ListTile(
                 leading: const Icon(Icons.photo_library),
                 title: const Text('Seleccionar de galería'),

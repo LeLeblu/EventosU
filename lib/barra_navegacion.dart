@@ -34,7 +34,9 @@ class BarraNavegacion extends StatelessWidget {
           icon: Icon(Icons.account_balance_wallet),
           label: 'Billetera',
         ),
-        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person), 
+          label: 'Perfil'),
       ],
     );
   }
