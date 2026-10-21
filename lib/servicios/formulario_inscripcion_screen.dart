@@ -122,7 +122,7 @@ class _FormularioInscripcionScreenState
         title: const Text('✅ Inscripción exitosa'),
         content: Text(
           'Quedaste inscrito en "${widget.evento.nombre}".\n'
-          'Te esperamos el ${widget.evento.fecha} a las ${widget.evento.hora}.',
+          'Te esperamos el ${widget.evento.fecha} a las ${widget.evento.hora}',
         ),
         actions: [
           TextButton(
