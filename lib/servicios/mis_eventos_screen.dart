@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../barra_navegacion.dart';
-import 'evento.dart';
-import 'eventos_mock.dart';
+import '../wallet/payment_screen.dart';
 import 'evento_card.dart';
+import 'inscripciones_estado.dart';
 
-/// Entradas fijas de ejemplo. Cancelar solo presenta el diálogo del prototipo.
+/// Muestra las inscripciones que la persona hizo con el formulario.
+/// La lista se actualiza sola al inscribirse o cancelar.
 class MisEventosScreen extends StatelessWidget {
   const MisEventosScreen({super.key});
 
-  void _verEntrada(BuildContext context, Evento e) {
+  void _verEntrada(BuildContext context, Inscripcion ins) {
+    final e = ins.evento;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -19,7 +21,6 @@ class MisEventosScreen extends StatelessWidget {
           children: [
             const Icon(Icons.qr_code_2, size: 140),
             const Text('Entrada de ejemplo · sin validez de acceso'),
-            const SizedBox(height: 8),
             const SizedBox(height: 12),
             Text(
               e.nombre,
@@ -27,17 +28,11 @@ class MisEventosScreen extends StatelessWidget {
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
+            filaInfo(Icons.person, ins.nombre),
+            filaInfo(Icons.badge, 'Documento ${ins.documento}'),
             filaInfo(Icons.calendar_today, e.fecha),
             filaInfo(Icons.access_time, e.hora),
             filaInfo(Icons.location_on, e.ubicacion),
-            const SizedBox(height: 8),
-            const Text(
-              'Estado: INSCRITO ✅',
-              style: TextStyle(
-                color: Colors.green,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
           ],
         ),
         actions: [
@@ -47,6 +42,40 @@ class MisEventosScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _confirmarCancelacion(
+    BuildContext context,
+    Inscripcion ins,
+  ) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('¿Cancelar inscripción?'),
+        content: Text('Vas a cancelar tu inscripción a "${ins.evento.nombre}".'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(
+              'Sí, cancelar',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar != true) return;
+    cancelarInscripcion(ins.evento);
+
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Cancelaste la inscripción a ${ins.evento.nombre}')),
     );
   }
 
@@ -60,17 +89,57 @@ class MisEventosScreen extends StatelessWidget {
         backgroundColor: colorPrimario,
         foregroundColor: Colors.white,
       ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        children: [
-          for (final evento in misEventosMock) _tarjeta(context, evento),
-        ],
+      // ValueListenableBuilder redibuja la pantalla cuando cambia la lista.
+      body: ValueListenableBuilder<List<Inscripcion>>(
+        valueListenable: inscripciones,
+        builder: (context, lista, _) {
+          if (lista.isEmpty) return _sinInscripciones(context);
+
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            itemCount: lista.length,
+            itemBuilder: (context, i) => _tarjeta(context, lista[i]),
+          );
+        },
       ),
     );
   }
 
-  Widget _tarjeta(BuildContext context, Evento e) {
+  Widget _sinInscripciones(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.event_busy, size: 72, color: Colors.black38),
+            const SizedBox(height: 12),
+            const Text(
+              'Aún no te has inscrito a ningún evento',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              icon: const Icon(Icons.search),
+              label: const Text('Explorar eventos'),
+              onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/home',
+                (route) => false,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _tarjeta(BuildContext context, Inscripcion ins) {
+    final e = ins.evento;
     final color = colorCategoria(e.categoria);
+    final pendientePago = ins.estado == 'Pendiente de pago';
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -99,10 +168,10 @@ class MisEventosScreen extends StatelessWidget {
             filaInfo(Icons.access_time, e.hora),
             filaInfo(Icons.location_on, e.ubicacion),
             const SizedBox(height: 8),
-            const Text(
-              'Estado: INSCRITO ✅',
+            Text(
+              pendientePago ? 'Estado: PENDIENTE DE PAGO ⏳' : 'Estado: INSCRITO ✅',
               style: TextStyle(
-                color: Colors.green,
+                color: pendientePago ? Colors.orange : Colors.green,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -110,11 +179,22 @@ class MisEventosScreen extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton.icon(
-                    icon: const Icon(Icons.confirmation_number),
-                    label: const Text('Ver entrada'),
-                    onPressed: () => _verEntrada(context, e),
-                  ),
+                  child: pendientePago
+                      ? OutlinedButton.icon(
+                          icon: const Icon(Icons.payment),
+                          label: const Text('Pagar'),
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => PaymentScreen(evento: e),
+                            ),
+                          ),
+                        )
+                      : OutlinedButton.icon(
+                          icon: const Icon(Icons.confirmation_number),
+                          label: const Text('Ver entrada'),
+                          onPressed: () => _verEntrada(context, ins),
+                        ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -125,11 +205,7 @@ class MisEventosScreen extends StatelessWidget {
                     ),
                     icon: const Icon(Icons.close),
                     label: const Text('Cancelar'),
-                    onPressed: () => mostrarDemo(
-                      context,
-                      'Cancelación de ejemplo',
-                      'Esta demostración no cancela la inscripción a ${e.nombre}.',
-                    ),
+                    onPressed: () => _confirmarCancelacion(context, ins),
                   ),
                 ),
               ],

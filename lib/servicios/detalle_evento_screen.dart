@@ -2,38 +2,15 @@ import 'package:flutter/material.dart';
 
 import 'evento.dart';
 import 'evento_card.dart';
-import '../wallet/payment_screen.dart';
+import 'formulario_inscripcion_screen.dart';
+import 'inscripciones_estado.dart';
 
-/// Detalle visual: las acciones abren ejemplos sin registrar ni cobrar.
+/// Detalle del evento. El botón principal abre el formulario de inscripción
+/// o indica que la persona ya está inscrita.
 class DetalleEventoScreen extends StatelessWidget {
   final Evento evento;
 
   const DetalleEventoScreen({super.key, required this.evento});
-
-  void _mostrarInscripcionDemo(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Inscripción de ejemplo'),
-        content: Text(
-          '${evento.nombre}\nEsta demostración no guarda inscripciones.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cerrar'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              Navigator.pushNamed(context, '/mis-eventos');
-            },
-            child: const Text('Ver mis eventos'),
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,47 +96,52 @@ class DetalleEventoScreen extends StatelessWidget {
   }
 
   Widget _botones(BuildContext context, Evento e) {
-    final textoBoton = e.precio == 'Gratis'
-        ? 'INSCRIBIRME'
-        : 'PAGAR ${e.precio}';
+    // Escucha la lista de inscripciones: si cambia, el botón se actualiza solo.
+    return ValueListenableBuilder<List<Inscripcion>>(
+      valueListenable: inscripciones,
+      builder: (context, lista, _) {
+        final yaInscrito = estaInscrito(e);
+        final textoBoton = yaInscrito
+            ? 'YA ESTÁS INSCRITO'
+            : (e.precio == 'Gratis' ? 'INSCRIBIRME' : 'PAGAR ${e.precio}');
 
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colorPrimario,
-                  foregroundColor: Colors.white,
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: colorPrimario,
+                      foregroundColor: Colors.white,
+                    ),
+                    // null deshabilita el botón cuando ya está inscrito.
+                    onPressed: yaInscrito
+                        ? null
+                        : () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    FormularioInscripcionScreen(evento: e),
+                              ),
+                            ),
+                    child: Text(textoBoton),
+                  ),
                 ),
-                onPressed: () {
-                  if (e.precio == 'Gratis') {
-                    _mostrarInscripcionDemo(context);
-                  } else {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PaymentScreen(evento: e),
-                      ),
-                    );
-                  }
-                },
-                child: Text(textoBoton),
-              ),
+                TextButton.icon(
+                  icon: const Icon(Icons.calendar_month),
+                  label: const Text('Agregar a mi calendario'),
+                  onPressed: () => mostrarCalendarioDemo(context, e),
+                ),
+              ],
             ),
-            TextButton.icon(
-              icon: const Icon(Icons.calendar_month),
-              label: const Text('Agregar a mi calendario'),
-              onPressed: () => mostrarCalendarioDemo(context, e),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

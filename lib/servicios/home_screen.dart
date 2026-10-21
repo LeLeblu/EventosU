@@ -7,15 +7,22 @@ import 'detalle_evento_screen.dart';
 import 'evento_card.dart';
 import 'eventos_categoria_screen.dart';
 
-/// Inicio del prototipo con categorías y eventos de ejemplo.
+/// Pantalla principal: buscador, categorías y próximos eventos.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  void _abrirCategoria(BuildContext context, String categoria) {
+  void _abrirCategoria(
+    BuildContext context,
+    String categoria, {
+    String busqueda = '',
+  }) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => EventosCategoriaScreen(categoria: categoria),
+        builder: (_) => EventosCategoriaScreen(
+          categoria: categoria,
+          busquedaInicial: busqueda,
+        ),
       ),
     );
   }
@@ -115,8 +122,12 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 16),
           TextField(
             textInputAction: TextInputAction.search,
-            onSubmitted: (texto) =>
-                _abrirCategoria(context, 'Todos los eventos'),
+            // Al presionar buscar, abre todos los eventos ya filtrados.
+            onSubmitted: (texto) => _abrirCategoria(
+              context,
+              'Todos los eventos',
+              busqueda: texto,
+            ),
             decoration: InputDecoration(
               hintText: 'Buscar eventos...',
               prefixIcon: const Icon(Icons.search),

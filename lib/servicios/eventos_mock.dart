@@ -1,6 +1,6 @@
 import 'evento.dart';
 
-/// Muestras fijas de la primera entrega: no se consultan ni se modifican.
+/// Catálogo de eventos de ejemplo (datos fijos, sin base de datos).
 const conferenciaIaMock = Evento(
   nombre: 'Conferencia de Inteligencia Artificial',
   descripcion: 'Charla sobre el uso de la IA en la educación y en el desarrollo de software, con invitados de la industria.',
@@ -114,5 +114,3 @@ const eventosMock = [
   festivalMock,
 ];
 
-// Ejemplos que se muestran en la pantalla Mis eventos.
-const misEventosMock = [conferenciaIaMock, conciertoMock];
