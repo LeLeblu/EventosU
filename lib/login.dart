@@ -201,13 +201,13 @@ class _LoginState extends State<Login> {
                               ),
                             ),
                             enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(14),
                               borderSide: const BorderSide(
                                 color: Color(0xFFD0D0D5),
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(14),
                               borderSide: const BorderSide(
                                 color: colorLogin,
                                 width: 1.5,
@@ -240,14 +240,14 @@ class _LoginState extends State<Login> {
                             child: Text(
                               'Iniciar sesión',
                               style: GoogleFonts.poppins(
-                                fontSize: 13,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
                         ),
 
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
 
                         // Enlace al registro
                         Center(
@@ -257,7 +257,7 @@ class _LoginState extends State<Login> {
                               Text(
                                 '¿No tienes una cuenta? ',
                                 style: GoogleFonts.poppins(
-                                  fontSize: 11,
+                                  fontSize: 14,
                                   color: Colors.black,
                                 ),
                               ),
@@ -271,7 +271,7 @@ class _LoginState extends State<Login> {
                                 child: Text(
                                   'Regístrate aquí',
                                   style: GoogleFonts.poppins(
-                                    fontSize: 11,
+                                    fontSize: 14,
                                     color: colorLogin,
                                     fontWeight: FontWeight.w600,
                                   ),

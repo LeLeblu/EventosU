@@ -63,7 +63,7 @@ class _RegistroState extends State<Registro> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text(
-          'Registro de demostración. Ahora puedes iniciar sesión.',
+          'Registro exitoso. Ahora puedes iniciar sesión.',
         ),
       ),
     );
@@ -97,13 +97,13 @@ class _RegistroState extends State<Registro> {
       keyboardType: keyboardType,
       obscureText: ocultar,
       style: GoogleFonts.poppins(
-        fontSize: 12,
+        fontSize: 14,
         color: Colors.black87,
       ),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: GoogleFonts.poppins(
-          fontSize: 12,
+          fontSize: 14,
           color: Colors.grey.shade500,
         ),
         contentPadding: const EdgeInsets.symmetric(
@@ -321,7 +321,7 @@ class _RegistroState extends State<Registro> {
                           ),
                         ),
 
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
 
                         Center(
                           child: Wrap(
@@ -330,7 +330,7 @@ class _RegistroState extends State<Registro> {
                               Text(
                                 '¿Ya tienes una cuenta? ',
                                 style: GoogleFonts.poppins(
-                                  fontSize: 11,
+                                  fontSize: 14,
                                   color: Colors.black,
                                 ),
                               ),
@@ -345,7 +345,7 @@ class _RegistroState extends State<Registro> {
                                 child: Text(
                                   'Inicia sesión',
                                   style: GoogleFonts.poppins(
-                                    fontSize: 11,
+                                    fontSize: 14,
                                     color: colorRegistro,
                                     fontWeight: FontWeight.w600,
                                   ),
