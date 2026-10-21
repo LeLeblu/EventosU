@@ -1,35 +1,109 @@
+
 import 'package:flutter/material.dart';
 
-// La misma barra se usa en las cuatro pantallas principales.
 class BarraNavegacion extends StatelessWidget {
   final int indiceActual;
 
-  const BarraNavegacion({super.key, required this.indiceActual});
+  const BarraNavegacion({
+    super.key,
+    required this.indiceActual,
+  });
 
   @override
   Widget build(BuildContext context) {
-    const rutas = ['/home', '/mis-eventos', '/wallet/wallet', '/perfil'];
+    const Color colorBarra = Color(0xFF5263FA);
+    const Color colorCirculo = Colors.white;
 
-    return BottomNavigationBar(
-      currentIndex: indiceActual,
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: const Color(0xFF5B5FEF),
-      onTap: (indice) {
-        if (indice == indiceActual) return;
+    const rutas = [
+      '/home',
+      '/mis-eventos',
+      '/wallet/wallet',
+      '/perfil',
+    ];
 
-        // Cambiar de sección sin acumular pantallas en el botón Atrás.
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          rutas[indice],
-          (route) => false,
-        );
-      },
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.celebration),
-          label: 'Mis eventos',
+    const iconos = [
+      Icons.home,
+      Icons.celebration,
+      Icons.account_balance_wallet,
+      Icons.person,
+    ];
+
+    const etiquetas = [
+      'Inicio',
+      'Mis eventos',
+      'Billetera',
+      'Perfil',
+    ];
+
+    final altoDisponible = MediaQuery.of(context).size.height;
+    final altoBarra = (altoDisponible * 0.09).clamp(65.0, 76.0);
+
+    return Container(
+      color: colorBarra,
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: altoBarra,
+          child: Row(
+            children: List.generate(rutas.length, (indice) {
+              final seleccionado = indice == indiceActual;
+
+              return Expanded(
+                child: InkWell(
+                  onTap: () {
+                    if (seleccionado) return;
+
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      rutas[indice],
+                      (route) => false,
+                    );
+                  },
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // El círculo aparece únicamente en el icono seleccionado.
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 180),
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: seleccionado
+                              ? colorCirculo
+                              : Colors.transparent,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          iconos[indice],
+                          size: 25,
+                          color: seleccionado
+                              ? colorBarra
+                              : Colors.white,
+                        ),
+                      ),
+
+                      const SizedBox(height: 1),
+
+                      Text(
+                        etiquetas[indice],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: seleccionado
+                              ? FontWeight.w700
+                              : FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ),
         ),
+<<<<<<< HEAD
         BottomNavigationBarItem(
           icon: Icon(Icons.account_balance_wallet),
           label: 'Billetera',
@@ -38,6 +112,9 @@ class BarraNavegacion extends StatelessWidget {
           icon: Icon(Icons.person), 
           label: 'Perfil'),
       ],
+=======
+      ),
+>>>>>>> 93aa7a18ecd5b4acad9b93ef0678b19709ab566c
     );
   }
 }
