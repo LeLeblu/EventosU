@@ -8,6 +8,8 @@ import 'wallet/wallet_screen.dart';
 import 'wallet/recharge_screen.dart';
 import 'servicios/home_screen.dart';
 import 'servicios/mis_eventos_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'notificaciones/notificaciones_screen.dart';
 
 const Color colorPrimario = Color(0xFF6155F5);
 const Color colorLogin = Color(0xFF5263FA);
@@ -26,8 +28,9 @@ class EventosApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'EventosU',
-      theme: ThemeData(
+      title: 'Eventos',
+      theme: ThemeData(fontFamily: GoogleFonts.poppins().fontFamily,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
         scaffoldBackgroundColor: colorFondo,
         colorScheme: ColorScheme.fromSeed(
@@ -115,6 +118,7 @@ class EventosApp extends StatelessWidget {
         '/recharge': (context) => const RechargeScreen(),
         '/home': (context) => const HomeScreen(),
         '/mis-eventos': (context) => const MisEventosScreen(),
+        '/notificaciones': (context) => const NotificacionesScreen(),
       },
     );
   }

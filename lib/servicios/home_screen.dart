@@ -97,15 +97,15 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
+
+              // Botón notificaciones
               CircleAvatar(
                 backgroundColor: Colors.white,
                 child: IconButton(
                   icon: const Icon(Icons.notifications, color: colorPrimario),
-                  onPressed: () => mostrarDemo(
-                    context,
-                    'Notificaciones',
-                    'No tienes notificaciones en esta demostración.',
-                  ),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/notificaciones');
+                  },
                 ),
               ),
             ],
