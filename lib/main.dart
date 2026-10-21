@@ -8,6 +8,7 @@ import 'wallet/recharge_screen.dart';
 import 'servicios/home_screen.dart';
 import 'servicios/mis_eventos_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'notificaciones/notificaciones_screen.dart';
 
 void main() {
   runApp(const EventosApp());
@@ -36,6 +37,7 @@ class EventosApp extends StatelessWidget {
         '/recharge': (context) => const RechargeScreen(),
         '/home': (context) => const HomeScreen(),
         '/mis-eventos': (context) => const MisEventosScreen(),
+        '/notificaciones': (context) => const NotificacionesScreen(),
       },
     );
   }

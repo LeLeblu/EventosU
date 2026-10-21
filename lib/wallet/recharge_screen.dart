@@ -23,7 +23,7 @@ class _RechargeScreenState extends State<RechargeScreen> {
         title: const Text('Recargar saldo', 
           style: TextStyle(
             color: Colors.black,
-            fontSize: 24,
+            fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -31,6 +31,7 @@ class _RechargeScreenState extends State<RechargeScreen> {
 
       body: Container(
         width: double.infinity,
+        height: double.infinity,
         decoration: const BoxDecoration(
           color: Color(0xFFABADFF),
           borderRadius: BorderRadius.only(
@@ -90,6 +91,7 @@ class _RechargeScreenState extends State<RechargeScreen> {
             
             // Campo de texto para ingresar el monto a recargar
             const SizedBox(height: 10),
+            
             TextField(
               controller: _valorController,
               keyboardType: TextInputType.number, 
@@ -97,8 +99,12 @@ class _RechargeScreenState extends State<RechargeScreen> {
           
               decoration: InputDecoration(
                 hintText: 'Ej: 10000',
+                filled: true,
+                fillColor: Colors.white,
+                
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12), // para redondear los bordes del TextField
+                  borderRadius: BorderRadius.circular(12),
+                 // para redondear los bordes del TextField
                 ),  
               ),
             ),
