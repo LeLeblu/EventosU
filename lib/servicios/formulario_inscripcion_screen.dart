@@ -90,7 +90,7 @@ class _FormularioInscripcionScreenState
     if (!camposValidos) return;
 
     final evento = widget.evento;
-    final esGratis = evento.precio == 'Gratis';
+    final esGratis = evento.esGratis;
 
     agregarInscripcion(
       Inscripcion(
@@ -119,11 +119,22 @@ class _FormularioInscripcionScreenState
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        title: const Text('✅ Inscripción exitosa'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        icon: const CircleAvatar(
+          radius: 30,
+          backgroundColor: colorVerde,
+          child: Icon(Icons.check_rounded, size: 36, color: Color(0xFF15803D)),
+        ),
+        title: const Text(
+          'Inscripción exitosa',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
         content: Text(
           'Quedaste inscrito en "${widget.evento.nombre}".\n'
           'Te esperamos el ${widget.evento.fecha} a las ${widget.evento.hora}',
+          textAlign: TextAlign.center,
         ),
+        actionsAlignment: MainAxisAlignment.center,
         actions: [
           TextButton(
             onPressed: () {
@@ -133,6 +144,12 @@ class _FormularioInscripcionScreenState
             child: const Text('Cerrar'),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: colorPrimario,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
             onPressed: () {
               Navigator.pop(ctx);
               Navigator.pushNamedAndRemoveUntil(
@@ -150,14 +167,9 @@ class _FormularioInscripcionScreenState
 
   // ---------------- Interfaz ----------------
 
+  // Misma decoración de campos del perfil (definida en evento_card.dart).
   InputDecoration _decoracion(String etiqueta, IconData icono) {
-    return InputDecoration(
-      labelText: etiqueta,
-      prefixIcon: Icon(icono),
-      filled: true,
-      fillColor: Colors.white,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-    );
+    return decoracionCampo(etiqueta, icono);
   }
 
   @override
@@ -165,12 +177,8 @@ class _FormularioInscripcionScreenState
     final evento = widget.evento;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F3F8),
-      appBar: AppBar(
-        title: const Text('Inscripción'),
-        backgroundColor: colorPrimario,
-        foregroundColor: Colors.white,
-      ),
+      backgroundColor: colorFondo,
+      appBar: barraSuperior('Inscripción'),
       body: SafeArea(
         child: Center(
           // En pantallas grandes (tablet) el formulario no se estira de más.
@@ -183,17 +191,26 @@ class _FormularioInscripcionScreenState
                 padding: const EdgeInsets.all(20),
                 children: [
                   _resumenEvento(evento),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 22),
                   const Text(
                     'Tus datos',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: colorTexto,
+                    ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Completa el formulario para reservar tu cupo.',
+                    style: TextStyle(fontSize: 13, color: colorTextoSuave),
+                  ),
+                  const SizedBox(height: 14),
                   TextFormField(
                     controller: _nombreCtrl,
                     textCapitalization: TextCapitalization.words,
                     textInputAction: TextInputAction.next,
-                    decoration: _decoracion('Nombre completo', Icons.person),
+                    decoration: _decoracion('Nombre completo', Icons.person_rounded),
                     validator: _validarNombre,
                   ),
                   const SizedBox(height: 14),
@@ -203,7 +220,7 @@ class _FormularioInscripcionScreenState
                     textInputAction: TextInputAction.next,
                     maxLength: 10,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: _decoracion('Número de documento', Icons.badge),
+                    decoration: _decoracion('Número de documento', Icons.badge_rounded),
                     validator: _validarDocumento,
                   ),
                   const SizedBox(height: 6),
@@ -211,7 +228,7 @@ class _FormularioInscripcionScreenState
                     controller: _correoCtrl,
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
-                    decoration: _decoracion('Correo electrónico', Icons.email),
+                    decoration: _decoracion('Correo electrónico', Icons.email_rounded),
                     validator: _validarCorreo,
                   ),
                   const SizedBox(height: 14),
@@ -220,13 +237,14 @@ class _FormularioInscripcionScreenState
                     keyboardType: TextInputType.phone,
                     maxLength: 10,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: _decoracion('Celular', Icons.phone_android),
+                    decoration: _decoracion('Celular', Icons.phone_android_rounded),
                     validator: _validarCelular,
                   ),
                   const SizedBox(height: 6),
                   DropdownButtonFormField<String>(
                     initialValue: _tipoParticipante,
-                    decoration: _decoracion('Tipo de participante', Icons.school),
+                    decoration: _decoracion('Tipo de participante', Icons.school_rounded),
+                    borderRadius: BorderRadius.circular(12),
                     items: const [
                       DropdownMenuItem(value: 'Estudiante', child: Text('Estudiante')),
                       DropdownMenuItem(value: 'Docente', child: Text('Docente')),
@@ -240,29 +258,30 @@ class _FormularioInscripcionScreenState
                   const SizedBox(height: 8),
                   CheckboxListTile(
                     value: _aceptaCondiciones,
+                    activeColor: colorPrimario,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     onChanged: (valor) =>
                         setState(() => _aceptaCondiciones = valor ?? false),
                     controlAffinity: ListTileControlAffinity.leading,
                     contentPadding: EdgeInsets.zero,
                     title: const Text(
                       'Acepto las condiciones del evento y el tratamiento de mis datos',
+                      style: TextStyle(fontSize: 13, color: colorTexto),
                     ),
                   ),
                   const SizedBox(height: 12),
-                  SizedBox(
-                    height: 50,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colorPrimario,
-                        foregroundColor: Colors.white,
-                      ),
-                      onPressed: _enviar,
-                      child: Text(
-                        evento.precio == 'Gratis'
-                            ? 'CONFIRMAR INSCRIPCIÓN'
-                            : 'CONTINUAR AL PAGO',
-                      ),
-                    ),
+                  // Botón naranja de inscripción, igual al del diseño.
+                  BotonEvento(
+                    texto: evento.esGratis
+                        ? 'Confirmar inscripción'
+                        : 'Continuar al pago',
+                    icono: evento.esGratis
+                        ? Icons.check_circle_outline_rounded
+                        : Icons.payment_rounded,
+                    color: colorNaranja,
+                    onPressed: _enviar,
                   ),
                 ],
               ),
@@ -273,36 +292,49 @@ class _FormularioInscripcionScreenState
     );
   }
 
+  // Resumen del evento con los colores de su categoría.
   Widget _resumenEvento(Evento e) {
-    final color = colorCategoria(e.categoria);
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 26,
-              backgroundColor: color.withAlpha(40),
-              child: Icon(iconoCategoria(e.categoria), color: color),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
+    final tema = temaCategoria(e.categoria);
+    return Container(
+      height: 96,
+      decoration: BoxDecoration(
+        color: tema.tarjeta,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(width: 86, child: PortadaEvento(evento: e, tamanoIcono: 32)),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     e.nombre,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: colorTexto,
+                    ),
                   ),
                   const SizedBox(height: 4),
-                  filaInfo(Icons.calendar_today, '${e.fecha} · ${e.hora}'),
-                  filaInfo(Icons.sell, e.precio),
+                  filaInfo(Icons.calendar_month_outlined, '${e.fecha} · ${e.hora}'),
+                  filaInfo(
+                    Icons.confirmation_number_outlined,
+                    e.esGratis ? 'Gratis' : '${e.precio} COP',
+                    negrita: true,
+                  ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
