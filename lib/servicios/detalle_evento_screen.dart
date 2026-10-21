@@ -118,6 +118,7 @@ class DetalleEventoScreen extends StatelessWidget {
     );
   }
 
+// widget de uso condicional para eventos de pago y gratuitos. Si el evento es gratuito, se muestra un botón para inscribirse. Si el evento tiene un precio, se muestra un botón para pagar. Además, se incluye un botón para agregar el evento al calendario del usuario.
   Widget _botones(BuildContext context, Evento e) {
     final textoBoton = e.precio == 'Gratis'
         ? 'INSCRIBIRME'
