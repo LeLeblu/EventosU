@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -23,18 +22,12 @@ class _LoginState extends State<Login> {
 
     if (correo.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor completa todos los campos'),
-        ),
+        const SnackBar(content: Text('Por favor completa todos los campos')),
       );
       return;
     }
 
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      '/home',
-      (route) => false,
-    );
+    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
   }
 
   @override
@@ -74,17 +67,9 @@ class _LoginState extends State<Login> {
                   ),
                 ),
 
-                Positioned(
-                  top: 20,
-                  right: 92,
-                  child: _circulo(9, colorLogin),
-                ),
+                Positioned(top: 20, right: 150, child: _circulo(20, colorLogin)),
 
-                Positioned(
-                  top: 59,
-                  right: 17,
-                  child: _circulo(9, colorLogin),
-                ),
+                Positioned(top: 59, right: 10, child: _circulo(20, colorLogin)),
 
                 // Círculos decorativos inferiores
                 Positioned(
@@ -95,14 +80,14 @@ class _LoginState extends State<Login> {
 
                 Positioned(
                   bottom: -36,
-                  left: 76,
-                  child: _circulo(83, const Color(0xFF858BFA)),
+                  left: 150,
+                  child: _circulo(95, const Color(0xFF858BFA)),
                 ),
 
                 Positioned(
                   bottom: 8,
                   left: 25,
-                  child: _circulo(13, colorLogin),
+                  child: _circulo(20, colorLogin),
                 ),
 
                 // Contenido adaptable y desplazable si hace falta
@@ -117,22 +102,30 @@ class _LoginState extends State<Login> {
                       children: [
                         SizedBox(height: espacioSuperior),
 
-                        Text(
-                          '¡Hola de nuevo!',
-                          style: GoogleFonts.poppins(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
+                        SizedBox(
+                          width: double.infinity,
+                          child: Text(
+                            '¡Hola de nuevo!',
+                            textAlign: TextAlign.left,
+                            style: GoogleFonts.poppins(
+                              fontSize: 30,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black,
+                            ),
                           ),
                         ),
 
                         const SizedBox(height: 2),
 
-                        Text(
-                          'Inicia sesión para continuar',
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: Colors.black87,
+                        SizedBox(
+                          width: double.infinity,
+                          child: Text(
+                            'Inicia sesión para continuar',
+                            textAlign: TextAlign.left,
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              color: Colors.black87,
+                            ),
                           ),
                         ),
 
@@ -146,7 +139,7 @@ class _LoginState extends State<Login> {
                           decoration: InputDecoration(
                             hintText: 'Correo electrónico',
                             hintStyle: GoogleFonts.poppins(
-                              fontSize: 12,
+                              fontSize: 14,
                               color: Colors.grey.shade500,
                             ),
                             contentPadding: const EdgeInsets.symmetric(
@@ -179,7 +172,7 @@ class _LoginState extends State<Login> {
                           decoration: InputDecoration(
                             hintText: 'Contraseña',
                             hintStyle: GoogleFonts.poppins(
-                              fontSize: 12,
+                              fontSize: 14,
                               color: Colors.grey.shade500,
                             ),
                             contentPadding: const EdgeInsets.symmetric(
@@ -263,10 +256,7 @@ class _LoginState extends State<Login> {
                               ),
                               GestureDetector(
                                 onTap: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    '/registro',
-                                  );
+                                  Navigator.pushNamed(context, '/registro');
                                 },
                                 child: Text(
                                   'Regístrate aquí',
@@ -298,10 +288,7 @@ class _LoginState extends State<Login> {
     return Container(
       width: diametro,
       height: diametro,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
   }
 }
