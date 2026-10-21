@@ -103,18 +103,7 @@ class BarraNavegacion extends StatelessWidget {
             }),
           ),
         ),
-<<<<<<< HEAD
-        BottomNavigationBarItem(
-          icon: Icon(Icons.account_balance_wallet),
-          label: 'Billetera',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person), 
-          label: 'Perfil'),
-      ],
-=======
       ),
->>>>>>> 93aa7a18ecd5b4acad9b93ef0678b19709ab566c
     );
   }
 }

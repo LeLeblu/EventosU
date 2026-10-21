@@ -34,57 +34,31 @@ class _PerfilState extends State<Perfil> {
   String? valorAnterior;
 
   Future<void> cambiarFoto() async {
-<<<<<<< HEAD
-    showModalBottomSheet(
+    final source = await showModalBottomSheet<ImageSource>(
       context: context,
-      builder: (context) {
-        return SafeArea(
-          child: Wrap(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text('Tomar foto'),
-                onTap: () async {
-                  Navigator.pop(context);
+      builder: (context) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Tomar foto'),
+              onTap: () => Navigator.pop(context, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Seleccionar de galería'),
+              onTap: () => Navigator.pop(context, ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
 
-                  final XFile? imagen = await picker.pickImage(
-                    source: ImageSource.camera,
-                  );
+    if (source == null || !mounted) return;
 
-                  if (imagen != null) {
-                    setState(() {
-                      fotoPerfil = File(imagen.path);
-                    });
-                  }
-                },
-              ),
-              // ListTile para seleccionar una foto de la galería del dispositivo. Al tocarlo, se cierra el modal y se abre la galería para que el usuario elija una imagen. Si se selecciona una imagen, se actualiza la foto de perfil en la interfaz.
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text('Seleccionar de galería'),
-                onTap: () async {
-                  Navigator.pop(context);
-
-                  final XFile? imagen = await picker.pickImage(
-                    source: ImageSource.gallery,
-                  );
-
-                  if (imagen != null) {
-                    setState(() {
-                      fotoPerfil = File(imagen.path);
-                    });
-                  }
-                },
-              ),
-            ],
-          ),
-        );
-      },
-=======
     final XFile? imagen = await picker.pickImage(
-      source: ImageSource.gallery,
+      source: source,
       imageQuality: 85,
->>>>>>> 93aa7a18ecd5b4acad9b93ef0678b19709ab566c
     );
 
     if (imagen != null && mounted) {

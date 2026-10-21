@@ -17,15 +17,9 @@ class _LoginState extends State<Login> {
 
   bool ocultarPassword = true; // Variable para controlar la visibilidad de la contraseña
 
-<<<<<<< HEAD
-  void iniciarSesion() { // Función para manejar el inicio de sesión
-    String correo = correoController.text.trim();
-    String password = passwordController.text;
-=======
   void iniciarSesion() {
     final correo = correoController.text.trim();
     final password = passwordController.text;
->>>>>>> 93aa7a18ecd5b4acad9b93ef0678b19709ab566c
 
     if (correo.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -60,55 +54,6 @@ class _LoginState extends State<Login> {
     final espacioInferior = (altoPantalla * 0.06).clamp(20.0, 45.0);
 
     return Scaffold(
-<<<<<<< HEAD
-      appBar: AppBar(title: const Text('Iniciar sesión'), centerTitle: true),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            const SizedBox(height: 40),
-
-            const Icon(Icons.event, size: 80, color: Colors.blue),
-
-            const SizedBox(height: 20),
-
-            const Text(
-              'INICIAR SESIÓN',
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 40),
-             // Campo de texto para el correo electrónico
-            TextField(
-              controller: correoController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                labelText: 'Correo electrónico',
-                hintText: 'ejemplo@correo.com',
-                prefixIcon: Icon(Icons.email),
-                border: OutlineInputBorder(),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-             // Campo de texto para la contraseña con opción de mostrar/ocultar
-            TextField(
-              controller: passwordController,
-              obscureText: ocultarPassword,
-              decoration: InputDecoration(
-                labelText: 'Contraseña',
-                prefixIcon: const Icon(Icons.lock),
-                border: const OutlineInputBorder(),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    ocultarPassword ? Icons.visibility : Icons.visibility_off,
-                  ),
-                  onPressed: () {
-                    setState(() {  // Cambia el estado de la visibilidad de la contraseña
-                      ocultarPassword = !ocultarPassword;
-                    });
-                  },
-=======
       backgroundColor: Colors.white,
       body: SafeArea(
         child: LayoutBuilder(
@@ -127,7 +72,6 @@ class _LoginState extends State<Login> {
                       shape: BoxShape.circle,
                     ),
                   ),
->>>>>>> 93aa7a18ecd5b4acad9b93ef0678b19709ab566c
                 ),
 
                 Positioned(
