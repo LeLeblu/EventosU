@@ -8,7 +8,7 @@ import 'wallet/wallet_screen.dart';
 import 'wallet/recharge_screen.dart';
 import 'servicios/home_screen.dart';
 import 'servicios/mis_eventos_screen.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 import 'notificaciones/notificaciones_screen.dart';
 
 const Color colorPrimario = Color(0xFF6155F5);
@@ -30,7 +30,7 @@ class EventosApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Eventos',
       theme: ThemeData(fontFamily: GoogleFonts.poppins().fontFamily,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        
         useMaterial3: true,
         scaffoldBackgroundColor: colorFondo,
         colorScheme: ColorScheme.fromSeed(
