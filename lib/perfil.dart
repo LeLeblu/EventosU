@@ -358,14 +358,7 @@ class _PerfilState extends State<Perfil> {
                         child: IconButton(
                           tooltip: 'Notificaciones',
                           onPressed: () {
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'No tienes notificaciones nuevas',
-                                ),
-                              ),
-                            );
+                            Navigator.pushNamed(context, '/notificaciones');
                           },
                           icon: const Icon(
                             Icons.notifications_active_outlined,

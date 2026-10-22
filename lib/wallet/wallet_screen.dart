@@ -14,6 +14,7 @@ class WalletScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF5263FA),
         foregroundColor: Colors.white,
+        centerTitle: false,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
