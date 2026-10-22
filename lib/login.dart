@@ -24,8 +24,12 @@ class _LoginState extends State<Login> {
     // Validar campos vacíos.
     if (correo.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor completa todos los campos'),
+        SnackBar(
+          backgroundColor: Colors.white,
+          content: Text(
+            'Por favor completa todos los campos',
+            style: const TextStyle(color: Colors.red),
+          ),
         ),
       );
       return;
@@ -38,8 +42,12 @@ class _LoginState extends State<Login> {
 
     if (!expresionCorreo.hasMatch(correo)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Ingresa un correo electrónico válido'),
+        SnackBar(
+          backgroundColor: Colors.white,
+          content: Text(
+            'Ingresa un correo electrónico válido',
+            style: const TextStyle(color: Colors.red),
+          ),
         ),
       );
       return;
@@ -48,9 +56,11 @@ class _LoginState extends State<Login> {
     // Validar longitud mínima de la contraseña.
     if (password.length < 4) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
+          backgroundColor: Colors.white,
           content: Text(
             'La contraseña debe tener mínimo 4 caracteres',
+            style: const TextStyle(color: Colors.red),
           ),
         ),
       );

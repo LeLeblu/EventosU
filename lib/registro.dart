@@ -22,6 +22,22 @@ class _RegistroState extends State<Registro> {
   bool ocultarPassword = true;
   bool ocultarConfirmarPassword = true;
 
+  void mostrarError(String mensaje) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.white,
+        content: Text(
+          mensaje,
+          style: GoogleFonts.poppins(
+            color: Colors.red,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+
   void registrarUsuario() {
     final nombre = nombreController.text.trim();
     final correo = correoController.text.trim();
@@ -34,36 +50,34 @@ class _RegistroState extends State<Registro> {
         programa.isEmpty ||
         password.isEmpty ||
         confirmarPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor completa todos los campos'),
-        ),
-      );
+      mostrarError('Por favor completa todos los campos');
       return;
     }
 
     if (!correo.contains('@') || !correo.contains('.')) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Ingresa un correo electrónico válido'),
-        ),
-      );
+      mostrarError('Ingresa un correo electrónico válido');
+      return;
+    }
+
+    if (password.length < 4) {
+      mostrarError('La contraseña debe tener mínimo 4 caracteres');
       return;
     }
 
     if (password != confirmarPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Las contraseñas no coinciden'),
-        ),
-      );
+      mostrarError('Las contraseñas no coinciden');
       return;
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
+        backgroundColor: Colors.white,
         content: Text(
           'Registro de demostración. Ahora puedes iniciar sesión.',
+          style: GoogleFonts.poppins(
+            color: Colors.green,
+            fontSize: 13,
+          ),
         ),
       ),
     );
