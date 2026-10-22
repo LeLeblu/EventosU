@@ -208,7 +208,7 @@ class _RegistroState extends State<Registro> {
                         Text(
                           'Crea tu cuenta',
                           style: GoogleFonts.poppins(
-                            fontSize: 24,
+                            fontSize: 28,
                             fontWeight: FontWeight.w600,
                             color: Colors.black,
                           ),
@@ -314,8 +314,8 @@ class _RegistroState extends State<Registro> {
                             child: Text(
                               'Crear cuenta',
                               style: GoogleFonts.poppins(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),

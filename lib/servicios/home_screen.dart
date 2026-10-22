@@ -116,7 +116,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-          if (accion != null) accion,
+          ?accion,
         ],
       ),
     );

@@ -158,7 +158,7 @@ class _LoginState extends State<Login> {
                         Text(
                           '¡Hola de nuevo!',
                           style: GoogleFonts.poppins(
-                            fontSize: 24,
+                            fontSize: 28,
                             fontWeight: FontWeight.w600,
                             color: Colors.black,
                           ),
@@ -225,7 +225,7 @@ class _LoginState extends State<Login> {
                           decoration: InputDecoration(
                             hintText: 'Contraseña',
                             hintStyle: GoogleFonts.poppins(
-                              fontSize: 12,
+                              fontSize: 14,
                               color: Colors.grey.shade500,
                             ),
                             contentPadding:
@@ -289,7 +289,7 @@ class _LoginState extends State<Login> {
                               'Iniciar sesión',
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
