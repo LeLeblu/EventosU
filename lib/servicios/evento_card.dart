@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'evento.dart';
+import 'evento.dart'; // importa la clase Evento desde el archivo evento.dart
 
 /// Estilo y widgets compartidos por las pantallas de eventos.
 /// Colores y medidas tomados del diseño en Figma del grupo:
