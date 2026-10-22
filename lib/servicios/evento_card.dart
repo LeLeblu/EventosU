@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'evento.dart';
+import 'evento.dart'; // importa la clase Evento desde el archivo evento.dart
 
 /// Utilidades y widgets compartidos por las pantallas de eventos.
 
@@ -11,14 +11,14 @@ IconData iconoCategoria(String categoria) {
   if (categoria == 'Deportes') return Icons.sports_soccer;
   return Icons.music_note;
 }
-
+// condicional para asignar un color a cada categoría de evento. Si la categoría es "Tecnología", se asigna el color primario definido anteriormente. Si es "Deportes", se asigna el color teal. Para cualquier otra categoría, se asigna el color deep orange.
 Color colorCategoria(String categoria) {
   if (categoria == 'Tecnología') return colorPrimario;
   if (categoria == 'Deportes') return Colors.teal;
   return Colors.deepOrange;
 }
 
-/// Las acciones de esta entrega solo muestran una vista de demostración.
+/// Muestra un diálogo de demostración con un mensaje.
 void mostrarDemo(BuildContext context, String titulo, String mensaje) {
   showDialog<void>(
     context: context,
@@ -39,8 +39,7 @@ void mostrarCalendarioDemo(BuildContext context, Evento evento) {
   mostrarDemo(
     context,
     'Calendario de ejemplo',
-    '${evento.nombre}\n${evento.fecha} · ${evento.hora}\n'
-        'Esta vista no agrega eventos al calendario del dispositivo.',
+    '${evento.nombre}\n${evento.fecha} · ${evento.hora}\n',
   );
 }
 

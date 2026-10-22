@@ -55,9 +55,12 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
           ),
+
+          // Lista de eventos de ejemplo
           for (final evento in eventosMock)
             EventoCard(
               evento: evento,
+              // Al tocar la tarjeta, se abre la pantalla de detalle del evento
               onTap: () => _abrirDetalle(context, evento),
             ),
           const SizedBox(height: 16),
@@ -94,15 +97,15 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
+
+              // Botón notificaciones
               CircleAvatar(
                 backgroundColor: Colors.white,
                 child: IconButton(
                   icon: const Icon(Icons.notifications, color: colorPrimario),
-                  onPressed: () => mostrarDemo(
-                    context,
-                    'Notificaciones',
-                    'No tienes notificaciones en esta demostración.',
-                  ),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/notificaciones');
+                  },
                 ),
               ),
             ],
