@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -24,8 +23,12 @@ class _LoginState extends State<Login> {
     // Validar campos vacíos.
     if (correo.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor completa todos los campos'),
+        SnackBar(
+          backgroundColor: Colors.white,
+          content: Text(
+            'Por favor completa todos los campos',
+            style: const TextStyle(color: Colors.red),
+          ),
         ),
       );
       return;
@@ -38,8 +41,12 @@ class _LoginState extends State<Login> {
 
     if (!expresionCorreo.hasMatch(correo)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Ingresa un correo electrónico válido'),
+        SnackBar(
+          backgroundColor: Colors.white,
+          content: Text(
+            'Ingresa un correo electrónico válido',
+            style: const TextStyle(color: Colors.red),
+          ),
         ),
       );
       return;
@@ -48,9 +55,11 @@ class _LoginState extends State<Login> {
     // Validar longitud mínima de la contraseña.
     if (password.length < 4) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
+          backgroundColor: Colors.white,
           content: Text(
             'La contraseña debe tener mínimo 4 caracteres',
+            style: const TextStyle(color: Colors.red),
           ),
         ),
       );
@@ -104,17 +113,9 @@ class _LoginState extends State<Login> {
                   ),
                 ),
 
-                Positioned(
-                  top: 20,
-                  right: 150,
-                  child: _circulo(20, colorLogin),
-                ),
+                Positioned(top: 20, right: 150, child: _circulo(20, colorLogin)),
 
-                Positioned(
-                  top: 59,
-                  right: 17,
-                  child: _circulo(9, colorLogin),
-                ),
+                Positioned(top: 59, right: 10, child: _circulo(20, colorLogin)),
 
                 // Círculos decorativos inferiores.
                 Positioned(
@@ -128,11 +129,8 @@ class _LoginState extends State<Login> {
 
                 Positioned(
                   bottom: -36,
-                  left: 76,
-                  child: _circulo(
-                    83,
-                    const Color(0xFF858BFA),
-                  ),
+                  left: 150,
+                  child: _circulo(95, const Color(0xFF858BFA)),
                 ),
 
                 Positioned(
@@ -155,22 +153,30 @@ class _LoginState extends State<Login> {
                       children: [
                         SizedBox(height: espacioSuperior),
 
-                        Text(
-                          '¡Hola de nuevo!',
-                          style: GoogleFonts.poppins(
-                            fontSize: 28,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
+                        SizedBox(
+                          width: double.infinity,
+                          child: Text(
+                            '¡Hola de nuevo!',
+                            textAlign: TextAlign.left,
+                            style: GoogleFonts.poppins(
+                              fontSize: 30,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black,
+                            ),
                           ),
                         ),
 
                         const SizedBox(height: 2),
 
-                        Text(
-                          'Inicia sesión para continuar',
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: Colors.black87,
+                        SizedBox(
+                          width: double.infinity,
+                          child: Text(
+                            'Inicia sesión para continuar',
+                            textAlign: TextAlign.left,
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              color: Colors.black87,
+                            ),
                           ),
                         ),
 
@@ -249,13 +255,13 @@ class _LoginState extends State<Login> {
                               ),
                             ),
                             enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(14),
                               borderSide: const BorderSide(
                                 color: Color(0xFFD0D0D5),
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(14),
                               borderSide: const BorderSide(
                                 color: colorLogin,
                                 width: 1.5,
@@ -311,10 +317,7 @@ class _LoginState extends State<Login> {
                               ),
                               GestureDetector(
                                 onTap: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    '/registro',
-                                  );
+                                  Navigator.pushNamed(context, '/registro');
                                 },
                                 child: Text(
                                   'Regístrate aquí',
@@ -346,10 +349,7 @@ class _LoginState extends State<Login> {
     return Container(
       width: diametro,
       height: diametro,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
   }
 }
