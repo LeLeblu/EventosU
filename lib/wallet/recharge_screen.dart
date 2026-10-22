@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class RechargeScreen extends StatefulWidget { /// para introducir datos
   const RechargeScreen({super.key});
@@ -10,6 +11,7 @@ class RechargeScreen extends StatefulWidget { /// para introducir datos
 class _RechargeScreenState extends State<RechargeScreen> {
 
   final TextEditingController _valorController = TextEditingController();
+  String? _errorMonto;
 
   @override
   Widget build(BuildContext context) {
@@ -94,11 +96,24 @@ class _RechargeScreenState extends State<RechargeScreen> {
             
             TextField(
               controller: _valorController,
-              keyboardType: TextInputType.number, 
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                TextInputFormatter.withFunction((oldValue, newValue) {
+                  final esValido = !RegExp(r'[^0-9]').hasMatch(newValue.text);
+                  setState(() {
+                    _errorMonto = esValido
+                        ? null
+                        : 'Ingresa solo números, sin puntos, comas ni letras. Ej: 10000';
+                  });
+                  return esValido ? newValue : oldValue;
+                }),
+              ],
               // para que solo se puedan ingresar números
           
               decoration: InputDecoration(
                 hintText: 'Ej: 10000',
+                errorText: _errorMonto,
+                errorMaxLines: 3,
                 filled: true,
                 fillColor: Colors.white,
                 
@@ -135,13 +150,14 @@ class _RechargeScreenState extends State<RechargeScreen> {
                   final valor = _valorController.text.trim();
 
                   // Validar que el valor ingresado no esté vacío
-                  if (valor.isEmpty) {
+                  final monto = int.tryParse(valor);
+                  if (monto == null || monto <= 0) {
                     showDialog<void>(
                       context: context,
                       builder: (context) => AlertDialog(
                         title: const Text('Monto inválido'),
                         content: const Text(
-                          'Por favor, ingrese un monto válido.',
+                          'Ingresa un monto mayor que cero, solo con números y sin puntos ni comas. Ej: 10000',
                         ),
                         actions: [
                           TextButton(
