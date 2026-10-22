@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 const Color colorLogin = Color(0xFF5263FA);
 
 class Login extends StatefulWidget {
-  const Login({super.key});
+  const Login({super.key}); // Constructor de la clase Login
 
   @override
   State<Login> createState() => _LoginState();
@@ -15,7 +15,7 @@ class _LoginState extends State<Login> {
   final TextEditingController correoController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  bool ocultarPassword = true;
+  bool ocultarPassword = true; // Variable para controlar la visibilidad de la contraseña
 
   void iniciarSesion() {
     final correo = correoController.text.trim();
@@ -106,8 +106,8 @@ class _LoginState extends State<Login> {
 
                 Positioned(
                   top: 20,
-                  right: 92,
-                  child: _circulo(9, colorLogin),
+                  right: 150,
+                  child: _circulo(20, colorLogin),
                 ),
 
                 Positioned(
@@ -128,17 +128,14 @@ class _LoginState extends State<Login> {
 
                 Positioned(
                   bottom: -36,
-                  left: 76,
-                  child: _circulo(
-                    83,
-                    const Color(0xFF858BFA),
-                  ),
+                  left: 150,
+                  child: _circulo(95, const Color(0xFF858BFA)),
                 ),
 
                 Positioned(
                   bottom: 8,
                   left: 25,
-                  child: _circulo(13, colorLogin),
+                  child: _circulo(20, colorLogin),
                 ),
 
                 // Contenido adaptable a la pantalla.
@@ -169,7 +166,7 @@ class _LoginState extends State<Login> {
                         Text(
                           'Inicia sesión para continuar',
                           style: GoogleFonts.poppins(
-                            fontSize: 14,
+                            fontSize: 16,
                             color: Colors.black87,
                           ),
                         ),
@@ -187,7 +184,7 @@ class _LoginState extends State<Login> {
                           decoration: InputDecoration(
                             hintText: 'Correo electrónico',
                             hintStyle: GoogleFonts.poppins(
-                              fontSize: 12,
+                              fontSize: 14,
                               color: Colors.grey.shade500,
                             ),
                             contentPadding:
@@ -288,14 +285,14 @@ class _LoginState extends State<Login> {
                             child: Text(
                               'Iniciar sesión',
                               style: GoogleFonts.poppins(
-                                fontSize: 13,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
                         ),
 
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
 
                         // Enlace al registro.
                         Center(
@@ -305,7 +302,7 @@ class _LoginState extends State<Login> {
                               Text(
                                 '¿No tienes una cuenta? ',
                                 style: GoogleFonts.poppins(
-                                  fontSize: 11,
+                                  fontSize: 14,
                                   color: Colors.black,
                                 ),
                               ),
@@ -319,7 +316,7 @@ class _LoginState extends State<Login> {
                                 child: Text(
                                   'Regístrate aquí',
                                   style: GoogleFonts.poppins(
-                                    fontSize: 11,
+                                    fontSize: 14,
                                     color: colorLogin,
                                     fontWeight: FontWeight.w600,
                                   ),

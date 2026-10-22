@@ -167,8 +167,8 @@ class _RegistroState extends State<Registro> {
                 ),
                 Positioned(
                   top: 20,
-                  right: 92,
-                  child: circulo(9, colorRegistro),
+                  right: 150,
+                  child: circulo(20, colorRegistro),
                 ),
                 Positioned(
                   top: 59,
@@ -184,13 +184,13 @@ class _RegistroState extends State<Registro> {
                 ),
                 Positioned(
                   bottom: -36,
-                  left: 76,
-                  child: circulo(83, const Color(0xFF858BFA)),
+                  left: 150,
+                  child: circulo(95, const Color(0xFF858BFA)),
                 ),
                 Positioned(
                   bottom: 8,
                   left: 25,
-                  child: circulo(13, colorRegistro),
+                  child: circulo(20, colorRegistro),
                 ),
 
                 // Formulario adaptable
@@ -219,7 +219,7 @@ class _RegistroState extends State<Registro> {
                         Text(
                           'Únete para explorar todos los eventos',
                           style: GoogleFonts.poppins(
-                            fontSize: 14,
+                            fontSize: 16,
                             color: Colors.black87,
                           ),
                         ),
@@ -321,7 +321,7 @@ class _RegistroState extends State<Registro> {
                           ),
                         ),
 
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
 
                         Center(
                           child: Wrap(
@@ -330,7 +330,7 @@ class _RegistroState extends State<Registro> {
                               Text(
                                 '¿Ya tienes una cuenta? ',
                                 style: GoogleFonts.poppins(
-                                  fontSize: 11,
+                                  fontSize: 14,
                                   color: Colors.black,
                                 ),
                               ),
@@ -345,7 +345,7 @@ class _RegistroState extends State<Registro> {
                                 child: Text(
                                   'Inicia sesión',
                                   style: GoogleFonts.poppins(
-                                    fontSize: 11,
+                                    fontSize: 14,
                                     color: colorRegistro,
                                     fontWeight: FontWeight.w600,
                                   ),

@@ -34,8 +34,30 @@ class _PerfilState extends State<Perfil> {
   String? valorAnterior;
 
   Future<void> cambiarFoto() async {
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Tomar foto'),
+              onTap: () => Navigator.pop(context, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Seleccionar de galería'),
+              onTap: () => Navigator.pop(context, ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (source == null || !mounted) return;
+
     final XFile? imagen = await picker.pickImage(
-      source: ImageSource.gallery,
+      source: source,
       imageQuality: 85,
     );
 
@@ -336,14 +358,7 @@ class _PerfilState extends State<Perfil> {
                         child: IconButton(
                           tooltip: 'Notificaciones',
                           onPressed: () {
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'No tienes notificaciones nuevas',
-                                ),
-                              ),
-                            );
+                            Navigator.pushNamed(context, '/notificaciones');
                           },
                           icon: const Icon(
                             Icons.notifications_active_outlined,
