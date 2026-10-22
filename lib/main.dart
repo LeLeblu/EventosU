@@ -9,6 +9,8 @@ import 'wallet/recharge_screen.dart';
 import 'servicios/home_screen.dart';
 import 'servicios/mis_eventos_screen.dart';
 
+import 'notificaciones/notificaciones_screen.dart';
+
 const Color colorPrimario = Color(0xFF6155F5);
 const Color colorLogin = Color(0xFF5263FA);
 const Color colorFondo = Color(0xFFFFFFFF);
@@ -26,8 +28,9 @@ class EventosApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'EventosU',
-      theme: ThemeData(
+      title: 'Eventos',
+      theme: ThemeData(fontFamily: GoogleFonts.poppins().fontFamily,
+        
         useMaterial3: true,
         scaffoldBackgroundColor: colorFondo,
         colorScheme: ColorScheme.fromSeed(
@@ -44,7 +47,7 @@ class EventosApp extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
           titleMedium: TextStyle(
-            fontSize: 18,
+            fontSize: 24,
             fontWeight: FontWeight.w600,
           ),
           bodyLarge: TextStyle(fontSize: 16),
@@ -57,11 +60,11 @@ class EventosApp extends StatelessWidget {
         appBarTheme: AppBarTheme(
           backgroundColor: colorFondo,
           foregroundColor: Colors.black87,
-          centerTitle: true,
+          centerTitle: false,
           titleTextStyle: GoogleFonts.poppins(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            
           ),
         ),
 
@@ -107,7 +110,7 @@ class EventosApp extends StatelessWidget {
 
       initialRoute: '/login',
 
-      routes: {
+      routes: { // Define las rutas de la aplicación
         '/registro': (context) => const Registro(),
         '/login': (context) => const Login(),
         '/perfil': (context) => const Perfil(),
@@ -115,6 +118,7 @@ class EventosApp extends StatelessWidget {
         '/recharge': (context) => const RechargeScreen(),
         '/home': (context) => const HomeScreen(),
         '/mis-eventos': (context) => const MisEventosScreen(),
+        '/notificaciones': (context) => const NotificacionesScreen(),
       },
     );
   }

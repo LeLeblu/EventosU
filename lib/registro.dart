@@ -22,6 +22,22 @@ class _RegistroState extends State<Registro> {
   bool ocultarPassword = true;
   bool ocultarConfirmarPassword = true;
 
+  void mostrarError(String mensaje) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.white,
+        content: Text(
+          mensaje,
+          style: GoogleFonts.poppins(
+            color: Colors.red,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+
   void registrarUsuario() {
     final nombre = nombreController.text.trim();
     final correo = correoController.text.trim();
@@ -34,36 +50,34 @@ class _RegistroState extends State<Registro> {
         programa.isEmpty ||
         password.isEmpty ||
         confirmarPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor completa todos los campos'),
-        ),
-      );
+      mostrarError('Por favor completa todos los campos');
       return;
     }
 
     if (!correo.contains('@') || !correo.contains('.')) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Ingresa un correo electrónico válido'),
-        ),
-      );
+      mostrarError('Ingresa un correo electrónico válido');
+      return;
+    }
+
+    if (password.length < 4) {
+      mostrarError('La contraseña debe tener mínimo 4 caracteres');
       return;
     }
 
     if (password != confirmarPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Las contraseñas no coinciden'),
-        ),
-      );
+      mostrarError('Las contraseñas no coinciden');
       return;
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
+        backgroundColor: Colors.white,
         content: Text(
-          'Registro exitoso. Ahora puedes iniciar sesión.',
+          'Registro de demostración. Ahora puedes iniciar sesión.',
+          style: GoogleFonts.poppins(
+            color: Colors.green,
+            fontSize: 13,
+          ),
         ),
       ),
     );
@@ -167,8 +181,8 @@ class _RegistroState extends State<Registro> {
                 ),
                 Positioned(
                   top: 20,
-                  right: 92,
-                  child: circulo(9, colorRegistro),
+                  right: 150,
+                  child: circulo(20, colorRegistro),
                 ),
                 Positioned(
                   top: 59,
@@ -184,13 +198,13 @@ class _RegistroState extends State<Registro> {
                 ),
                 Positioned(
                   bottom: -36,
-                  left: 76,
-                  child: circulo(83, const Color(0xFF858BFA)),
+                  left: 150,
+                  child: circulo(95, const Color(0xFF858BFA)),
                 ),
                 Positioned(
                   bottom: 8,
                   left: 25,
-                  child: circulo(13, colorRegistro),
+                  child: circulo(20, colorRegistro),
                 ),
 
                 // Formulario adaptable
@@ -219,7 +233,7 @@ class _RegistroState extends State<Registro> {
                         Text(
                           'Únete para explorar todos los eventos',
                           style: GoogleFonts.poppins(
-                            fontSize: 14,
+                            fontSize: 16,
                             color: Colors.black87,
                           ),
                         ),
