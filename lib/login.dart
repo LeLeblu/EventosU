@@ -295,7 +295,7 @@ class _LoginState extends State<Login> {
                               'Iniciar sesión',
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),

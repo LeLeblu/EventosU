@@ -1,118 +1,223 @@
 import 'evento.dart';
 
-/// Muestras fijas de la primera entrega: no se consultan ni se modifican.
+/// Catálogo de eventos de ejemplo (datos fijos, sin base de datos).
+/// Las fotos son de Pexels (uso libre) y se cargan desde internet.
+
+
+// ----------------------------- Tecnología -----------------------------
 const conferenciaIaMock = Evento(
   nombre: 'Conferencia de Inteligencia Artificial',
-  descripcion: 'Charla sobre el uso de la IA en la educación y en el desarrollo de software, con invitados de la industria.',
+  descripcion:
+      'Un espacio donde se compartirán las novedades de la inteligencia '
+      'artificial y su uso en la educación y el desarrollo de software.\n\n'
+      'La conferencia tendrá una duración de 45 minutos, seguida de un '
+      'espacio de preguntas del público.\n\n'
+      'Importante: se recomiendan conocimientos básicos sobre IA.',
   categoria: 'Tecnología',
+  subcategoria: 'Conferencias',
+  organizador: 'Facultad de Tecnología',
   fecha: '2 de octubre de 2026',
   hora: '10:00 a.m.',
   ubicacion: 'Auditorio principal',
   precio: 'Gratis',
   cupos: 80,
+  imagen:
+      'https://images.pexels.com/photos/3321793/pexels-photo-3321793.jpeg?auto=compress&cs=tinysrgb&w=640',
 );
 
 const tallerFlutterMock = Evento(
   nombre: 'Taller de Flutter',
-  descripcion: 'Taller práctico para crear tu primera aplicación móvil con Flutter y Dart.',
+  descripcion:
+      'Taller práctico para crear tu primera aplicación móvil con Flutter y '
+      'Dart. Trae tu portátil con Flutter instalado.\n\n'
+      'Al final del taller tendrás una app funcionando en el emulador.',
   categoria: 'Tecnología',
+  subcategoria: 'Talleres',
+  organizador: 'Facultad de Tecnología',
   fecha: '5 de octubre de 2026',
   hora: '2:00 p.m.',
   ubicacion: 'Sala de sistemas 3',
   precio: '\$15.000',
   cupos: 25,
+  imagen:
+      'https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=640',
 );
 
 const hackathonMock = Evento(
-  nombre: 'Hackathon UNAD',
-  descripcion: 'Competencia de 12 horas para resolver retos reales en equipos.',
+  nombre: 'Feria de innovación UNAD',
+  descripcion:
+      'Muestra de proyectos tecnológicos de estudiantes, con zona de '
+      'prototipos, robótica y realidad virtual.\n\n'
+      'Habrá premiación a los tres mejores proyectos.',
   categoria: 'Tecnología',
+  subcategoria: 'Ferias',
+  organizador: 'Escuela de Ciencias Básicas, Tecnología e Ingeniería',
   fecha: '10 de octubre de 2026',
   hora: '8:00 a.m.',
   ubicacion: 'Laboratorio de innovación',
   precio: 'Gratis',
   cupos: 8,
   disponibilidad: 'A punto de cerrar',
+  imagen:
+      'https://images.pexels.com/photos/7869041/pexels-photo-7869041.jpeg?auto=compress&cs=tinysrgb&w=640',
 );
 
+const foroMock = Evento(
+  nombre: 'Foro de ciberseguridad',
+  descripcion:
+      'Panel con expertos sobre cómo proteger tus datos y tus aplicaciones. '
+      'Incluye casos reales y recomendaciones prácticas.',
+  categoria: 'Tecnología',
+  subcategoria: 'Foros',
+  organizador: 'Facultad de Tecnología',
+  fecha: '14 de octubre de 2026',
+  hora: '4:00 p.m.',
+  ubicacion: 'Sala virtual',
+  precio: 'Gratis',
+  cupos: 120,
+  imagen:
+      'https://images.pexels.com/photos/5380618/pexels-photo-5380618.jpeg?auto=compress&cs=tinysrgb&w=640',
+);
+
+// ------------------------------ Deportes ------------------------------
 const voleibolMock = Evento(
   nombre: 'Campeonato de Voleibol',
-  descripcion: 'Encuentro interfacultades de voleibol mixto.',
+  descripcion:
+      'Encuentro interfacultades de voleibol mixto. Los equipos se arman '
+      'el mismo día; solo debes llegar con ropa deportiva.',
   categoria: 'Deportes',
+  subcategoria: 'Voleibol',
+  organizador: 'Bienestar Universitario · Deportes',
   fecha: '1 de octubre de 2026',
   hora: '6:00 p.m.',
   ubicacion: 'Cancha Bloque 3',
   precio: 'Gratis',
   cupos: 30,
+  imagen:
+      'https://images.pexels.com/photos/6203560/pexels-photo-6203560.jpeg?auto=compress&cs=tinysrgb&w=640',
 );
 
 const futbolMock = Evento(
-  nombre: 'Torneo universitario de fútbol',
-  descripcion: 'Torneo relámpago de fútbol 5. La inscripción es individual.',
+  nombre: 'Partido Ligas menores',
+  descripcion:
+      'Torneo relámpago de fútbol 5. La inscripción es individual y se '
+      'asigna equipo al llegar.\n\nIncluye hidratación para los jugadores.',
   categoria: 'Deportes',
+  subcategoria: 'Fútbol',
+  organizador: 'Bienestar Universitario · Deportes',
   fecha: '4 de octubre de 2026',
   hora: '3:00 p.m.',
-  ubicacion: 'Coliseo central',
+  ubicacion: 'Cancha B',
   precio: '\$10.000',
   cupos: 40,
+  imagen:
+      'https://images.pexels.com/photos/13048411/pexels-photo-13048411.jpeg?auto=compress&cs=tinysrgb&w=640',
 );
 
-const carreraMock = Evento(
-  nombre: 'Carrera atlética 5K',
-  descripcion: 'Carrera recreativa por los alrededores del campus.',
+const baloncestoMock = Evento(
+  nombre: 'Torneo de baloncesto 3x3',
+  descripcion:
+      'Torneo de baloncesto en modalidad 3x3 con premiación para el equipo '
+      'campeón.',
   categoria: 'Deportes',
-  fecha: '8 de octubre de 2026',
-  hora: '7:00 a.m.',
-  ubicacion: 'Entrada principal',
-  precio: 'Gratis',
-  cupos: 150,
+  subcategoria: 'Baloncesto',
+  organizador: 'Bienestar Universitario · Deportes',
+  fecha: '9 de octubre de 2026',
+  hora: '5:00 p.m.',
+  ubicacion: 'Coliseo central',
+  precio: '\$5.000',
+  cupos: 0,
+  disponibilidad: 'Agotado',
+  imagen:
+      'https://images.pexels.com/photos/2874717/pexels-photo-2874717.jpeg?auto=compress&cs=tinysrgb&w=640',
 );
 
+// ------------------------------- Música -------------------------------
 const talentosMock = Evento(
-  nombre: 'Noche de talentos',
-  descripcion: 'Presentaciones musicales de estudiantes de todas las escuelas.',
+  nombre: 'Música en vivo',
+  descripcion:
+      'Presentaciones musicales de estudiantes de todas las escuelas. '
+      'Ven a apoyar el talento de la universidad.',
   categoria: 'Música',
+  subcategoria: 'Conciertos',
+  organizador: 'Bienestar Universitario · Cultura',
   fecha: '3 de octubre de 2026',
   hora: '7:00 p.m.',
-  ubicacion: 'Auditorio B',
+  ubicacion: 'Plaza central',
   precio: 'Gratis',
-  cupos: 60,
+  cupos: 6,
+  disponibilidad: 'A punto de cerrar',
+  imagen:
+      'https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=640',
 );
 
 const conciertoMock = Evento(
-  nombre: 'Concierto acústico',
+  nombre: 'Concierto acústico en vivo',
   descripcion:
       'Concierto universitario en formato acústico con artistas invitados.',
   categoria: 'Música',
+  subcategoria: 'Conciertos',
+  organizador: 'Bienestar Universitario · Cultura',
   fecha: '6 de octubre de 2026',
   hora: '8:00 p.m.',
-  ubicacion: 'Plaza central',
+  ubicacion: 'Auditorio A',
   precio: '\$20.000',
   cupos: 35,
+  imagen:
+      'https://images.pexels.com/photos/1966012/pexels-photo-1966012.jpeg?auto=compress&cs=tinysrgb&w=640',
 );
 
 const festivalMock = Evento(
   nombre: 'Festival universitario',
-  descripcion: 'Festival con bandas locales, comida y actividades culturales.',
+  descripcion:
+      'Festival con bandas locales, comida y actividades culturales durante '
+      'toda la tarde.',
   categoria: 'Música',
+  subcategoria: 'Festivales',
+  organizador: 'Bienestar Universitario · Cultura',
   fecha: '12 de octubre de 2026',
   hora: '6:00 p.m.',
   ubicacion: 'Auditorio B',
   precio: '\$25.000',
   cupos: 100,
+  imagen:
+      'https://images.pexels.com/photos/2905996/pexels-photo-2905996.jpeg?auto=compress&cs=tinysrgb&w=640',
+);
+
+const djMock = Evento(
+  nombre: 'Noche electrónica DJ\'s',
+  descripcion:
+      'Sesión de música electrónica con DJ\'s estudiantes y luces en vivo.',
+  categoria: 'Música',
+  subcategoria: 'DJ\'s',
+  organizador: 'Bienestar Universitario · Cultura',
+  fecha: '17 de octubre de 2026',
+  hora: '9:00 p.m.',
+  ubicacion: 'Plazoleta de comidas',
+  precio: '\$15.000',
+  cupos: 50,
+  imagen:
+      'https://images.pexels.com/photos/219101/pexels-photo-219101.jpeg?auto=compress&cs=tinysrgb&w=640',
 );
 
 const eventosMock = [
   conferenciaIaMock,
   tallerFlutterMock,
   hackathonMock,
+  foroMock,
   voleibolMock,
   futbolMock,
-  carreraMock,
+  baloncestoMock,
   talentosMock,
   conciertoMock,
   festivalMock,
+  djMock,
 ];
 
-// Ejemplos que se muestran en la pantalla Mis eventos.
-const misEventosMock = [conferenciaIaMock, conciertoMock];
+/// Eventos que se muestran en "Próximos eventos" del inicio.
+const proximosEventosMock = [
+  talentosMock,
+  futbolMock,
+  conferenciaIaMock,
+  conciertoMock,
+];
