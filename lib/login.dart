@@ -21,6 +21,7 @@ class _LoginState extends State<Login> {
     final correo = correoController.text.trim();
     final password = passwordController.text;
 
+    // Validar campos vacíos.
     if (correo.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -30,6 +31,33 @@ class _LoginState extends State<Login> {
       return;
     }
 
+    // Validar formato del correo electrónico.
+    final expresionCorreo = RegExp(
+      r'^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$',
+    );
+
+    if (!expresionCorreo.hasMatch(correo)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Ingresa un correo electrónico válido'),
+        ),
+      );
+      return;
+    }
+
+    // Validar longitud mínima de la contraseña.
+    if (password.length < 4) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'La contraseña debe tener mínimo 4 caracteres',
+          ),
+        ),
+      );
+      return;
+    }
+
+    // Continuar a la pantalla principal.
     Navigator.pushNamedAndRemoveUntil(
       context,
       '/home',
@@ -48,10 +76,12 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     final altoPantalla = MediaQuery.of(context).size.height;
 
-    // Espacios adaptables al tamaño del dispositivo.
-    final espacioSuperior = (altoPantalla * 0.13).clamp(65.0, 100.0);
-    final espacioFormulario = (altoPantalla * 0.065).clamp(24.0, 48.0);
-    final espacioInferior = (altoPantalla * 0.06).clamp(20.0, 45.0);
+    final espacioSuperior =
+        (altoPantalla * 0.13).clamp(65.0, 100.0);
+    final espacioFormulario =
+        (altoPantalla * 0.065).clamp(24.0, 48.0);
+    final espacioInferior =
+        (altoPantalla * 0.06).clamp(20.0, 45.0);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -60,7 +90,7 @@ class _LoginState extends State<Login> {
           builder: (context, constraints) {
             return Stack(
               children: [
-                // Círculos decorativos superiores
+                // Círculos decorativos superiores.
                 Positioned(
                   top: -48,
                   right: 10,
@@ -86,17 +116,23 @@ class _LoginState extends State<Login> {
                   child: _circulo(9, colorLogin),
                 ),
 
-                // Círculos decorativos inferiores
+                // Círculos decorativos inferiores.
                 Positioned(
                   bottom: 67,
                   left: -43,
-                  child: _circulo(86, const Color(0xFF858BFA)),
+                  child: _circulo(
+                    86,
+                    const Color(0xFF858BFA),
+                  ),
                 ),
 
                 Positioned(
                   bottom: -36,
-                  left: 150,
-                  child: _circulo(95, const Color(0xFF858BFA)),
+                  left: 76,
+                  child: _circulo(
+                    83,
+                    const Color(0xFF858BFA),
+                  ),
                 ),
 
                 Positioned(
@@ -105,9 +141,11 @@ class _LoginState extends State<Login> {
                   child: _circulo(20, colorLogin),
                 ),
 
-                // Contenido adaptable y desplazable si hace falta
+                // Contenido adaptable a la pantalla.
                 SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                  ),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       minHeight: constraints.maxHeight,
@@ -138,18 +176,22 @@ class _LoginState extends State<Login> {
 
                         SizedBox(height: espacioFormulario),
 
-                        // Correo electrónico
+                        // Campo de correo electrónico.
                         TextField(
                           controller: correoController,
                           keyboardType: TextInputType.emailAddress,
-                          style: GoogleFonts.poppins(fontSize: 14),
+                          textInputAction: TextInputAction.next,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                          ),
                           decoration: InputDecoration(
                             hintText: 'Correo electrónico',
                             hintStyle: GoogleFonts.poppins(
                               fontSize: 14,
                               color: Colors.grey.shade500,
                             ),
-                            contentPadding: const EdgeInsets.symmetric(
+                            contentPadding:
+                                const EdgeInsets.symmetric(
                               horizontal: 14,
                               vertical: 14,
                             ),
@@ -171,25 +213,31 @@ class _LoginState extends State<Login> {
 
                         const SizedBox(height: 10),
 
-                        // Contraseña
+                        // Campo de contraseña.
                         TextField(
                           controller: passwordController,
                           obscureText: ocultarPassword,
-                          style: GoogleFonts.poppins(fontSize: 14),
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (_) => iniciarSesion(),
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                          ),
                           decoration: InputDecoration(
                             hintText: 'Contraseña',
                             hintStyle: GoogleFonts.poppins(
                               fontSize: 12,
                               color: Colors.grey.shade500,
                             ),
-                            contentPadding: const EdgeInsets.symmetric(
+                            contentPadding:
+                                const EdgeInsets.symmetric(
                               horizontal: 14,
                               vertical: 14,
                             ),
                             suffixIcon: IconButton(
                               onPressed: () {
                                 setState(() {
-                                  ocultarPassword = !ocultarPassword;
+                                  ocultarPassword =
+                                      !ocultarPassword;
                                 });
                               },
                               icon: Icon(
@@ -218,7 +266,7 @@ class _LoginState extends State<Login> {
 
                         const SizedBox(height: 10),
 
-                        // Botón de inicio de sesión
+                        // Botón de inicio de sesión.
                         SizedBox(
                           width: double.infinity,
                           height: 42,
@@ -249,7 +297,7 @@ class _LoginState extends State<Login> {
 
                         const SizedBox(height: 10),
 
-                        // Enlace al registro
+                        // Enlace al registro.
                         Center(
                           child: Wrap(
                             alignment: WrapAlignment.center,
