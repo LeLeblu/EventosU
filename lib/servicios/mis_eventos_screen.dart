@@ -23,13 +23,10 @@ class MisEventosScreen extends StatelessWidget {
         builder: (context, lista, _) {
           if (lista.isEmpty) return _sinInscripciones(context);
 
-          final pendientes =
-              lista.where((i) => i.estado == 'Pendiente de pago').length;
-
+          // Lista de eventos inscritos, como en el diseño del grupo.
           return ListView(
-            padding: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.only(top: 4, bottom: 16),
             children: [
-              _resumen(lista.length - pendientes, pendientes),
               for (final ins in lista)
                 EventoCard(
                   evento: ins.evento,
@@ -45,60 +42,6 @@ class MisEventosScreen extends StatelessWidget {
           );
         },
       ),
-    );
-  }
-
-  // Tarjeta morada con el conteo, como el encabezado de la billetera.
-  Widget _resumen(int inscritos, int pendientes) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 4, 16, 10),
-      padding: const EdgeInsets.symmetric(vertical: 18),
-      decoration: BoxDecoration(
-        color: colorPrimario,
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: sombraColor(colorPrimario),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: _contador(Icons.check_circle_rounded, '$inscritos', 'Inscritos'),
-          ),
-          Container(width: 1, height: 40, color: Colors.white38),
-          Expanded(
-            child: _contador(
-              Icons.schedule_rounded,
-              '$pendientes',
-              'Pendientes de pago',
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _contador(IconData icono, String numero, String texto) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icono, color: Colors.white, size: 20),
-            const SizedBox(width: 6),
-            Text(
-              numero,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-        Text(
-          texto,
-          style: const TextStyle(color: Colors.white70, fontSize: 12),
-        ),
-      ],
     );
   }
 

@@ -280,6 +280,23 @@ class PortadaEvento extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
+                // Foto del evento. Mientras carga, o si no hay internet,
+                // se ve la ilustración de la categoría que está debajo.
+                if (evento.imagen.isNotEmpty)
+                  Positioned.fill(
+                    child: Image.network(
+                      evento.imagen,
+                      fit: BoxFit.cover,
+                      frameBuilder: (context, child, frame, sincrono) =>
+                          AnimatedOpacity(
+                        opacity: frame == null ? 0 : 1,
+                        duration: const Duration(milliseconds: 300),
+                        child: child,
+                      ),
+                      errorBuilder: (context, error, stack) =>
+                          const SizedBox.shrink(),
+                    ),
+                  ),
               ],
             );
           },
@@ -354,17 +371,27 @@ class EventoCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        filaInfo(
-                          Icons.calendar_month_outlined,
-                          '${evento.fecha.replaceAll(' de 2026', '')} · ${evento.hora}',
-                        ),
-                        filaInfo(Icons.location_on_outlined, evento.ubicacion),
-                        filaInfo(
-                          iconoEstado,
-                          estado,
-                          color: colorEstado,
-                          negrita: true,
-                        ),
+                        if (estadoPersonalizado != null) ...[
+                          // Mis eventos (como el diseño): fecha, lugar y hora.
+                          filaInfo(
+                            Icons.calendar_month_outlined,
+                            evento.fecha.replaceAll(' de 2026', ''),
+                          ),
+                          filaInfo(Icons.location_on_outlined, evento.ubicacion),
+                          filaInfo(Icons.access_time_rounded, evento.hora),
+                        ] else ...[
+                          filaInfo(
+                            Icons.calendar_month_outlined,
+                            '${evento.fecha.replaceAll(' de 2026', '')} · ${evento.hora}',
+                          ),
+                          filaInfo(Icons.location_on_outlined, evento.ubicacion),
+                          filaInfo(
+                            iconoEstado,
+                            estado,
+                            color: colorEstado,
+                            negrita: true,
+                          ),
+                        ],
                         const Spacer(),
                         Row(
                           children: [

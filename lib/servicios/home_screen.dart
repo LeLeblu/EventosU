@@ -462,6 +462,19 @@ class HomeScreen extends StatelessWidget {
             ),
             child: Stack(
               children: [
+                // Foto del evento muy suave detrás del degradado.
+                if (evento.imagen.isNotEmpty)
+                  Positioned.fill(
+                    child: Opacity(
+                      opacity: 0.25,
+                      child: Image.network(
+                        evento.imagen,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stack) =>
+                            const SizedBox.shrink(),
+                      ),
+                    ),
+                  ),
                 Positioned(top: -40, right: -30, child: circulo(140, _burbuja.withAlpha(140))),
                 Positioned(bottom: -30, right: 70, child: circulo(70, _burbuja.withAlpha(110))),
                 Positioned(top: 18, right: 110, child: circulo(10, Colors.white.withAlpha(150))),

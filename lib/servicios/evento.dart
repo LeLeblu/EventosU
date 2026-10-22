@@ -11,6 +11,7 @@ class Evento {
   final String precio; // "Gratis" o "$20.000"
   final int cupos;
   final String disponibilidad; // Disponible, A punto de cerrar o Agotado
+  final String imagen; // foto del evento (enlace de internet)
 
   const Evento({
     required this.nombre,
@@ -24,6 +25,7 @@ class Evento {
     required this.precio,
     required this.cupos,
     this.disponibilidad = 'Disponible',
+    this.imagen = '',
   });
 
   bool get esGratis => precio == 'Gratis';
