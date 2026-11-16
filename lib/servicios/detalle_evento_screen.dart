@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../wallet/payment_screen.dart';
 import 'evento.dart';
 import 'evento_card.dart';
-import 'formulario_inscripcion_screen.dart';
+import 'confirmacion_inscripcion.dart';
 import 'inscripciones_estado.dart';
 
 /// Detalle del evento (diseño "Detalle evento" del Figma):
@@ -168,12 +168,8 @@ class DetalleEventoScreen extends StatelessWidget {
         return BotonEvento(
           texto: evento.esGratis ? 'Inscribirse' : 'Inscribirse y pagar',
           color: colorNaranja,
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => FormularioInscripcionScreen(evento: evento),
-            ),
-          ),
+          // Abre la ventana flotante de confirmación.
+          onPressed: () => mostrarConfirmacionInscripcion(context, evento),
         );
       },
     );

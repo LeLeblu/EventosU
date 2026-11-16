@@ -62,9 +62,7 @@ class DetalleMisEventoScreen extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(24, 26, 24, 24),
                 children: [
                   ...contenidoDetalleEvento(e, estado: inscripcion.estado),
-                  const SizedBox(height: 18),
-                  _entrada(context),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 24),
                   if (_pendientePago)
                     BotonEvento(
                       texto: 'Completar pago',
@@ -93,60 +91,6 @@ class DetalleMisEventoScreen extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Datos del participante que se capturaron en el formulario.
-  Widget _entrada(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: colorLavanda,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.qr_code_2_rounded,
-              size: 38,
-              color: colorTexto,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Mi entrada',
-                  style: TextStyle(fontSize: 12, color: colorTextoSuave),
-                ),
-                Text(
-                  inscripcion.nombre,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: colorTexto,
-                  ),
-                ),
-                Text(
-                  'Documento ${inscripcion.documento}',
-                  style: const TextStyle(fontSize: 13, color: colorTexto),
-                ),
-              ],
             ),
           ),
         ],

@@ -2,23 +2,13 @@ import 'package:flutter/foundation.dart';
 
 import 'evento.dart';
 
-/// Datos que la persona escribe en el formulario de inscripción.
+/// Inscripción a un evento. Ya no pide datos personales: el usuario
+/// solo confirma en una ventana flotante (sus datos son los de su cuenta).
 class Inscripcion {
   final Evento evento;
-  final String nombre;
-  final String documento;
-  final String correo;
-  final String celular;
   final String estado; // 'Inscrito' o 'Pendiente de pago'
 
-  const Inscripcion({
-    required this.evento,
-    required this.nombre,
-    required this.documento,
-    required this.correo,
-    required this.celular,
-    required this.estado,
-  });
+  const Inscripcion({required this.evento, required this.estado});
 }
 
 /// Estado compartido de las inscripciones.
@@ -52,14 +42,7 @@ void confirmarPago(Evento evento) {
   inscripciones.value = [
     for (final i in inscripciones.value)
       i.evento.nombre == evento.nombre
-          ? Inscripcion(
-              evento: i.evento,
-              nombre: i.nombre,
-              documento: i.documento,
-              correo: i.correo,
-              celular: i.celular,
-              estado: 'Inscrito',
-            )
+          ? Inscripcion(evento: i.evento, estado: 'Inscrito')
           : i,
   ];
 }

@@ -6,7 +6,6 @@ import 'eventos_mock.dart';
 import 'detalle_evento_screen.dart';
 import 'evento_card.dart';
 import 'eventos_categoria_screen.dart';
-import 'inscripciones_estado.dart';
 
 // Burbujas: los mismos tonos del login y el registro.
 const Color _burbuja = Color(0xFF858BFA);
@@ -252,12 +251,9 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _saludo(BuildContext context) {
-    return ValueListenableBuilder<List<Inscripcion>>(
-      valueListenable: inscripciones,
-      builder: (context, lista, _) {
-        // El nombre sale del último formulario de inscripción.
-        final nombre =
-            lista.isEmpty ? 'Estudiante' : lista.last.nombre.split(' ').first;
+    return Builder(
+      builder: (context) {
+        const nombre = 'Estudiante';
 
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
