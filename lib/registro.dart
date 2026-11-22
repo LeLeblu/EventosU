@@ -1,6 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sqflite/sqflite.dart';
+
+import 'base_datos/usuario_dao.dart';
 
 const Color colorRegistro = Color(0xFF5263FA);
 
@@ -21,6 +23,7 @@ class _RegistroState extends State<Registro> {
 
   bool ocultarPassword = true;
   bool ocultarConfirmarPassword = true;
+  bool registrando = false;
 
   void mostrarError(String mensaje) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -38,7 +41,9 @@ class _RegistroState extends State<Registro> {
     );
   }
 
-  void registrarUsuario() {
+  Future<void> registrarUsuario() async {
+    if (registrando) return;
+
     final nombre = nombreController.text.trim();
     final correo = correoController.text.trim();
     final programa = programaController.text.trim();
@@ -54,13 +59,15 @@ class _RegistroState extends State<Registro> {
       return;
     }
 
-    if (!correo.contains('@') || !correo.contains('.')) {
+    final correoValido = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
+
+    if (!correoValido.hasMatch(correo)) {
       mostrarError('Ingresa un correo electrónico válido');
       return;
     }
 
-    if (password.length < 4) {
-      mostrarError('La contraseña debe tener mínimo 4 caracteres');
+    if (password.length < 8) {
+      mostrarError('La contraseña debe tener mínimo 8 caracteres');
       return;
     }
 
@@ -69,24 +76,50 @@ class _RegistroState extends State<Registro> {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.white,
-        content: Text(
-          'Registro de demostración. Ahora puedes iniciar sesión.',
-          style: GoogleFonts.poppins(
-            color: Colors.green,
-            fontSize: 13,
-          ),
-        ),
-      ),
-    );
+    setState(() {
+      registrando = true;
+    });
 
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      '/login',
-      (route) => false,
-    );
+    try {
+      await UsuarioDao.registrarUsuario(
+        nombre: nombre,
+        correo: correo,
+        programa: programa,
+        password: password,
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Cuenta creada correctamente'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    } on CorreoRegistradoException {
+      if (!mounted) return;
+      mostrarError('Este correo electrónico ya está registrado');
+    } on DatabaseException catch (e) {
+      if (!mounted) return;
+
+      if (e.isUniqueConstraintError()) {
+        mostrarError('Este correo electrónico ya está registrado');
+      } else {
+        mostrarError('Error al guardar el usuario');
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      mostrarError('No se pudo completar el registro');
+    } finally {
+      if (mounted) {
+        setState(() {
+          registrando = false;
+        });
+      }
+    }
   }
 
   @override
@@ -110,10 +143,7 @@ class _RegistroState extends State<Registro> {
       controller: controller,
       keyboardType: keyboardType,
       obscureText: ocultar,
-      style: GoogleFonts.poppins(
-        fontSize: 14,
-        color: Colors.black87,
-      ),
+      style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: GoogleFonts.poppins(
@@ -131,16 +161,11 @@ class _RegistroState extends State<Registro> {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: Color(0xFFD0D0D5),
-          ),
+          borderSide: const BorderSide(color: Color(0xFFD0D0D5)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: colorRegistro,
-            width: 1.5,
-          ),
+          borderSide: const BorderSide(color: colorRegistro, width: 1.5),
         ),
       ),
     );
@@ -150,10 +175,7 @@ class _RegistroState extends State<Registro> {
     return Container(
       width: diametro,
       height: diametro,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
   }
 
@@ -311,7 +333,7 @@ class _RegistroState extends State<Registro> {
                           width: double.infinity,
                           height: 42,
                           child: ElevatedButton(
-                            onPressed: registrarUsuario,
+                            onPressed: registrando ? null : registrarUsuario,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: colorRegistro,
                               foregroundColor: Colors.white,

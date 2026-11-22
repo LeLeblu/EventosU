@@ -1,11 +1,124 @@
+import '../base_datos/pago_dao.dart';
+import '../base_datos/evento_dao.dart';
+import '../servicios/sesion_usuario.dart';
+
 import 'package:flutter/material.dart';
 
 import '../servicios/evento.dart';
+import 'billetera_estado.dart';
 
-class PaymentScreen extends StatelessWidget {
+class PaymentScreen extends StatefulWidget {
   final Evento evento;
 
   const PaymentScreen({super.key, required this.evento});
+  @override
+  State<PaymentScreen> createState() => _PaymentScreenState();
+}
+
+class _PaymentScreenState extends State<PaymentScreen> {
+  Evento? _actual;
+  Evento get evento => _actual ?? widget.evento;
+  bool _pagando = false;
+  late final int _idUsuario;
+  bool _cargando = true;
+  bool _error = false;
+  @override
+  void initState() {
+    super.initState();
+    _idUsuario = SesionUsuario.idUsuario;
+    _cargarSaldo();
+  }
+
+  Future<void> _cargarSaldo() async {
+    setState(() {
+      _cargando = true;
+      _error = false;
+    });
+    try {
+      final id = widget.evento.idEvento;
+      final actual = id == null ? null : await EventoDao.obtenerPorId(id);
+      if (actual == null) throw const ErrorPago('El evento ya no existe');
+      await cargarBilletera();
+      if (!mounted || SesionUsuario.usuarioActual?.idUsuarios != _idUsuario) {
+        return;
+      }
+      setState(() => _actual = actual);
+    } catch (_) {
+      if (mounted) setState(() => _error = true);
+    } finally {
+      if (mounted) setState(() => _cargando = false);
+    }
+  }
+
+  Future<void> _pagar() async {
+    if (_pagando ||
+        _cargando ||
+        _error ||
+        SesionUsuario.usuarioActual?.idUsuarios != _idUsuario) {
+      return;
+    }
+    setState(() => _pagando = true);
+    try {
+      await pagarEvento(evento);
+      if (!mounted || SesionUsuario.usuarioActual?.idUsuarios != _idUsuario) {
+        return;
+      }
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) => PopScope(
+          canPop: false,
+          child: AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            icon: const Icon(Icons.check_circle, color: Colors.green, size: 48),
+            title: const Text('Evento pagado con éxito'),
+            actions: [
+              FilledButton(
+                onPressed: () {
+                  Navigator.pop(dialogContext);
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    '/mis-eventos',
+                    (route) => route.isFirst,
+                  );
+                },
+                child: const Text('Ver mis eventos'),
+              ),
+            ],
+          ),
+        ),
+      );
+    } on ErrorPago catch (error) {
+      if (mounted) {
+        await _mostrarError(error.mensaje);
+        if (mounted) await _cargarSaldo();
+      }
+    } catch (_) {
+      if (mounted) {
+        await _mostrarError(
+          'No se pudo completar el pago. Consulta tu saldo y Mis Eventos antes de reintentar',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _pagando = false);
+    }
+  }
+
+  Future<void> _mostrarError(String mensaje) => showDialog<void>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('No se pudo realizar el pago'),
+      content: Text(mensaje),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx),
+          child: const Text('Aceptar'),
+        ),
+      ],
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -58,32 +171,26 @@ class PaymentScreen extends StatelessWidget {
               'Monto a pagar: ${evento.precio}',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 10),
+            ValueListenableBuilder<int>(
+              valueListenable: saldoBilletera,
+              builder: (_, saldo, _) => Text(
+                _cargando
+                    ? 'Cargando saldo...'
+                    : _error
+                    ? 'No se pudieron consultar los datos del pago'
+                    : 'Saldo disponible: ${formatearPesos(saldo)} COP',
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+            if (_error)
+              TextButton(
+                onPressed: _cargarSaldo,
+                child: const Text('Reintentar consulta'),
+              ),
             const SizedBox(height: 30),
             ElevatedButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (dialogContext) => AlertDialog(
-                    title: const Text('Pago de ejemplo'),
-                    content: const Text(
-                      'Esta demostración no realiza cobros ni guarda inscripciones.',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(dialogContext),
-                        child: const Text('Cerrar'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(dialogContext);
-                          Navigator.pushNamed(context, '/mis-eventos');
-                        },
-                        child: const Text('Ver mis eventos'),
-                      ),
-                    ],
-                  ),
-                );
-              },
+              onPressed: _pagando || _cargando || _error ? null : _pagar,
               child: const Text('Pagar'),
             ),
           ],

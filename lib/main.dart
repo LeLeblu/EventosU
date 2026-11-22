@@ -1,5 +1,9 @@
+import 'servicios/sesion_usuario.dart';
+
+import 'package:eventos_app/base_datos/database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sqflite/sqflite.dart';
 
 import 'registro.dart';
 import 'login.dart';
@@ -17,7 +21,21 @@ const Color colorFondo = Color(0xFFFFFFFF);
 const Color colorTarjeta = Color(0xFFE5E5EA);
 const Color colorError = Color(0xFFDC2626);
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final db = await DatabaseHelper.iniciarDB();
+  final version = await db.getVersion();
+  debugPrint(
+    'Versión de la base de datos: $version',
+  ); // Imprime la versión actual de la base de datos
+
+  final tablas = await db.rawQuery(
+    "SELECT name FROM sqlite_master WHERE type='table'",
+  );
+
+  debugPrint(
+    'Tablas en la base de datos: $tablas',
+  ); // Imprime las tablas existentes en la base de datos
   runApp(const EventosApp());
 }
 
@@ -29,8 +47,9 @@ class EventosApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Eventos',
-      theme: ThemeData(fontFamily: GoogleFonts.poppins().fontFamily,
-        
+      theme: ThemeData(
+        fontFamily: GoogleFonts.poppins().fontFamily,
+
         useMaterial3: true,
         scaffoldBackgroundColor: colorFondo,
         colorScheme: ColorScheme.fromSeed(
@@ -42,19 +61,11 @@ class EventosApp extends StatelessWidget {
 
         // Tipografía general
         textTheme: const TextTheme(
-          titleLarge: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-          titleMedium: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w600,
-          ),
+          titleLarge: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          titleMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
           bodyLarge: TextStyle(fontSize: 16),
           bodyMedium: TextStyle(fontSize: 14),
-        ).apply(
-          fontFamily: GoogleFonts.poppins().fontFamily,
-        ),
+        ).apply(fontFamily: GoogleFonts.poppins().fontFamily),
 
         // Barra superior
         appBarTheme: AppBarTheme(
@@ -64,7 +75,6 @@ class EventosApp extends StatelessWidget {
           titleTextStyle: GoogleFonts.poppins(
             fontSize: 18,
             fontWeight: FontWeight.w600,
-            
           ),
         ),
 
@@ -89,15 +99,10 @@ class EventosApp extends StatelessWidget {
           labelStyle: GoogleFonts.poppins(fontSize: 16),
           hintStyle: GoogleFonts.poppins(fontSize: 14),
           prefixIconColor: colorPrimario,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(
-              color: colorPrimario,
-              width: 2,
-            ),
+            borderSide: const BorderSide(color: colorPrimario, width: 2),
           ),
         ),
 
@@ -110,15 +115,26 @@ class EventosApp extends StatelessWidget {
 
       initialRoute: '/login',
 
-      routes: { // Define las rutas de la aplicación
+      routes: {
+        // Define las rutas de la aplicación
         '/registro': (context) => const Registro(),
         '/login': (context) => const Login(),
-        '/perfil': (context) => const Perfil(),
-        '/wallet/wallet': (context) => const WalletScreen(),
-        '/recharge': (context) => const RechargeScreen(),
-        '/home': (context) => const HomeScreen(),
-        '/mis-eventos': (context) => const MisEventosScreen(),
-        '/notificaciones': (context) => const NotificacionesScreen(),
+        '/perfil': (context) =>
+            SesionUsuario.estaAutenticado ? const Perfil() : const Login(),
+        '/wallet/wallet': (context) => SesionUsuario.estaAutenticado
+            ? const WalletScreen()
+            : const Login(),
+        '/recharge': (context) => SesionUsuario.estaAutenticado
+            ? const RechargeScreen()
+            : const Login(),
+        '/home': (context) =>
+            SesionUsuario.estaAutenticado ? const HomeScreen() : const Login(),
+        '/mis-eventos': (context) => SesionUsuario.estaAutenticado
+            ? const MisEventosScreen()
+            : const Login(),
+        '/notificaciones': (context) => SesionUsuario.estaAutenticado
+            ? const NotificacionesScreen()
+            : const Login(),
       },
     );
   }

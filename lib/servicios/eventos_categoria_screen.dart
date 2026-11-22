@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'evento.dart';
-import 'eventos_mock.dart';
+import 'filtro_eventos.dart';
+import '../base_datos/evento_dao.dart';
+import '../base_datos/datos_iniciales.dart';
 import 'detalle_evento_screen.dart';
 import 'evento_card.dart';
 
@@ -26,6 +28,25 @@ class _EventosCategoriaScreenState extends State<EventosCategoriaScreen> {
   late final TextEditingController _busquedaCtrl;
   String _busqueda = '';
   String _filtro = 'Todos';
+  List<Evento> _catalogo = [];
+  bool _cargando = true;
+  String? _error;
+
+  Future<void> _cargarCatalogo() async {
+    setState(() {
+      _cargando = true;
+      _error = null;
+    });
+    try {
+      await DatosIniciales.asegurarCatalogo();
+      final eventos = await EventoDao.listar();
+      if (mounted) setState(() => _catalogo = eventos);
+    } catch (_) {
+      if (mounted) setState(() => _error = 'No se pudieron cargar los eventos');
+    } finally {
+      if (mounted) setState(() => _cargando = false);
+    }
+  }
 
   bool get _todas => widget.categoria == 'Todos los eventos';
 
@@ -34,6 +55,7 @@ class _EventosCategoriaScreenState extends State<EventosCategoriaScreen> {
     super.initState();
     _busqueda = widget.busquedaInicial;
     _busquedaCtrl = TextEditingController(text: widget.busquedaInicial);
+    _cargarCatalogo();
   }
 
   @override
@@ -45,7 +67,7 @@ class _EventosCategoriaScreenState extends State<EventosCategoriaScreen> {
   /// Opciones de los botones superiores: subcategorías (o categorías).
   List<String> _opcionesFiltro() {
     final opciones = <String>['Todos'];
-    for (final e in eventosMock) {
+    for (final e in _catalogo) {
       final valor = _todas ? e.categoria : e.subcategoria;
       final pertenece = _todas || e.categoria == widget.categoria;
       if (pertenece && valor.isNotEmpty && !opciones.contains(valor)) {
@@ -57,25 +79,20 @@ class _EventosCategoriaScreenState extends State<EventosCategoriaScreen> {
 
   /// Eventos que cumplen la categoría, el botón elegido y la búsqueda.
   List<Evento> _eventosFiltrados() {
-    final texto = _busqueda.trim().toLowerCase();
-    return [
-      for (final e in eventosMock)
-        if ((_todas || e.categoria == widget.categoria) &&
-            (_filtro == 'Todos' ||
-                (_todas ? e.categoria : e.subcategoria) == _filtro) &&
-            (texto.isEmpty ||
-                e.nombre.toLowerCase().contains(texto) ||
-                e.ubicacion.toLowerCase().contains(texto) ||
-                e.descripcion.toLowerCase().contains(texto)))
-          e,
-    ];
+    return filtrarEventos(
+      _catalogo,
+      categoria: widget.categoria,
+      filtro: _filtro,
+      busqueda: _busqueda,
+    );
   }
 
-  void _abrirDetalle(Evento evento) {
-    Navigator.push(
+  Future<void> _abrirDetalle(Evento evento) async {
+    await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => DetalleEventoScreen(evento: evento)),
     );
+    if (mounted) await _cargarCatalogo();
   }
 
   @override
@@ -104,7 +121,10 @@ class _EventosCategoriaScreenState extends State<EventosCategoriaScreen> {
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: tema.tarjeta,
                     borderRadius: BorderRadius.circular(12),
@@ -121,7 +141,16 @@ class _EventosCategoriaScreenState extends State<EventosCategoriaScreen> {
             ),
           ),
           Expanded(
-            child: eventos.isEmpty
+            child: _cargando
+                ? const Center(child: CircularProgressIndicator())
+                : _error != null
+                ? Center(
+                    child: TextButton(
+                      onPressed: _cargarCatalogo,
+                      child: Text('$_error. Reintentar'),
+                    ),
+                  )
+                : eventos.isEmpty
                 ? _sinResultados()
                 : ListView.builder(
                     padding: const EdgeInsets.only(top: 4, bottom: 16),
@@ -201,7 +230,10 @@ class _EventosCategoriaScreenState extends State<EventosCategoriaScreen> {
                     fontSize: 13,
                     color: colorTextoSuave,
                   ),
-                  prefixIcon: const Icon(Icons.search_rounded, color: colorTexto),
+                  prefixIcon: const Icon(
+                    Icons.search_rounded,
+                    color: colorTexto,
+                  ),
                   suffixIcon: _busqueda.isEmpty
                       ? null
                       : IconButton(

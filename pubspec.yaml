@@ -35,6 +35,10 @@ dependencies:
   # Permite seleccionar imágenes de la galería y tomar fotos con la cámara.
   image_picker: ^1.2.0
   google_fonts: ^9.0.0
+  sqflite: ^2.4.6
+  path: ^1.9.1
+  cryptography: ^2.9.0
+  add_2_calendar: 3.1.1
 
 dev_dependencies:
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -43,6 +47,9 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+  sqflite_common_ffi: ^2.4.7
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -54,6 +61,8 @@ flutter:
   # included with your application. 
   # Icons can be used with the Icons class.
   uses-material-design: true
+  assets:
+    - assets/eventos/
 
   # To add assets to your application, add an assets section here:
   # assets:
