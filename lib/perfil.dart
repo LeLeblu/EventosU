@@ -1,5 +1,11 @@
+import 'servicios/sesion_usuario.dart';
+import 'servicios/inscripciones_estado.dart';
+import 'wallet/billetera_estado.dart';
 
-import 'dart:io';
+import 'dart:typed_data';
+
+import 'base_datos/usuario_dao.dart';
+import 'modelos/usuario.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,57 +24,113 @@ class Perfil extends StatefulWidget {
 }
 
 class _PerfilState extends State<Perfil> {
-  final TextEditingController nombreController =
-      TextEditingController(text: 'Yoly Mancera');
+  final nombreController = TextEditingController();
+  final correoController = TextEditingController();
+  final programaController = TextEditingController();
+  bool ocupado = true;
+  bool perfilCargado = false;
+  late final int idUsuario;
 
-  final TextEditingController correoController =
-      TextEditingController(text: 'Yoly@correo.com');
+  @override
+  void initState() {
+    super.initState();
+    idUsuario = SesionUsuario.idUsuario;
+    cargarPerfil();
+  }
 
-  final TextEditingController programaController =
-      TextEditingController(text: 'Desarrollo de software');
+  bool get sesionVigente =>
+      mounted && SesionUsuario.usuarioActual?.idUsuarios == idUsuario;
+
+  void aplicarUsuario(Usuario usuario) {
+    SesionUsuario.iniciar(usuario);
+    nombreController.text = usuario.nombre;
+    correoController.text = usuario.correo;
+    programaController.text = usuario.programa ?? '';
+    fotoPerfil = usuario.fotoPerfil;
+  }
+
+  void mensaje(String texto) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(texto)));
+  }
+
+  Future<void> cargarPerfil() async {
+    try {
+      final usuario = await UsuarioDao.obtenerPorId(idUsuario);
+      if (!sesionVigente) return;
+      setState(() {
+        aplicarUsuario(usuario);
+        perfilCargado = true;
+      });
+    } catch (_) {
+      if (sesionVigente) {
+        mensaje('No se pudo cargar el perfil. Vuelve a abrir esta pantalla');
+      }
+    } finally {
+      if (mounted) setState(() => ocupado = false);
+    }
+  }
 
   final ImagePicker picker = ImagePicker();
 
-  File? fotoPerfil;
+  Uint8List? fotoPerfil;
   String? campoEditando;
   String? valorAnterior;
 
   Future<void> cambiarFoto() async {
-    final source = await showModalBottomSheet<ImageSource>(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Wrap(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Tomar foto'),
-              onTap: () => Navigator.pop(context, ImageSource.camera),
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Seleccionar de galería'),
-              onTap: () => Navigator.pop(context, ImageSource.gallery),
-            ),
-          ],
+    if (ocupado || !perfilCargado) return;
+    setState(() => ocupado = true);
+    try {
+      final source = await showModalBottomSheet<ImageSource>(
+        context: context,
+        builder: (context) => SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Tomar foto'),
+                onTap: () => Navigator.pop(context, ImageSource.camera),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Seleccionar de galería'),
+                onTap: () => Navigator.pop(context, ImageSource.gallery),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
 
-    if (source == null || !mounted) return;
+      if (source == null || !mounted) return;
 
-    final XFile? imagen = await picker.pickImage(
-      source: source,
-      imageQuality: 85,
-    );
-
-    if (imagen != null && mounted) {
+      final XFile? imagen = await picker.pickImage(
+        source: source,
+        imageQuality: 85,
+        maxWidth: 1600,
+        maxHeight: 1600,
+      );
+      if (imagen == null || !sesionVigente) return;
+      final bytes = await imagen.readAsBytes();
+      if (!sesionVigente) return;
+      final usuario = await UsuarioDao.actualizarFoto(idUsuario, bytes);
+      if (!sesionVigente) return;
       setState(() {
-        fotoPerfil = File(imagen.path);
+        fotoPerfil = usuario.fotoPerfil;
+        SesionUsuario.iniciar(usuario);
       });
+      mensaje('Fotografía actualizada');
+    } catch (_) {
+      if (sesionVigente) {
+        mensaje(
+          'No se pudo guardar la fotografía. Revisa los permisos e inténtalo nuevamente',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => ocupado = false);
     }
   }
 
   void iniciarEdicion(String campo) {
+    if (ocupado || !perfilCargado) return;
     FocusManager.instance.primaryFocus?.unfocus();
 
     setState(() {
@@ -89,6 +151,7 @@ class _PerfilState extends State<Perfil> {
   }
 
   void cancelarEdicion() {
+    if (ocupado) return;
     setState(() {
       switch (campoEditando) {
         case 'Nombre':
@@ -109,21 +172,35 @@ class _PerfilState extends State<Perfil> {
     FocusManager.instance.primaryFocus?.unfocus();
   }
 
-  void guardarPerfil() {
+  Future<void> guardarPerfil() async {
+    if (ocupado || !perfilCargado || !sesionVigente) return;
     FocusManager.instance.primaryFocus?.unfocus();
-
-    setState(() {
-      campoEditando = null;
-      valorAnterior = null;
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Información actualizada en esta demostración',
-        ),
-      ),
-    );
+    setState(() => ocupado = true);
+    try {
+      final usuario = await UsuarioDao.actualizarPerfil(
+        idUsuario: idUsuario,
+        nombre: nombreController.text,
+        correo: correoController.text,
+        programa: programaController.text,
+      );
+      if (!sesionVigente) return;
+      setState(() {
+        aplicarUsuario(usuario);
+        campoEditando = null;
+        valorAnterior = null;
+      });
+      mensaje('Información actualizada correctamente');
+    } on CorreoRegistradoException {
+      if (sesionVigente) mensaje('Este correo electrónico ya está registrado');
+    } on FormatException catch (error) {
+      if (sesionVigente) mensaje(error.message);
+    } catch (_) {
+      if (sesionVigente) {
+        mensaje('No se pudo guardar el perfil. Inténtalo nuevamente');
+      }
+    } finally {
+      if (mounted) setState(() => ocupado = false);
+    }
   }
 
   Widget textoPerfil(String texto, {bool negrita = false}) {
@@ -132,8 +209,7 @@ class _PerfilState extends State<Perfil> {
       style: GoogleFonts.poppins(
         fontSize: 13,
         color: colorTextoPerfil,
-        fontWeight:
-            negrita ? FontWeight.w600 : FontWeight.normal,
+        fontWeight: negrita ? FontWeight.w600 : FontWeight.normal,
       ),
     );
   }
@@ -144,12 +220,10 @@ class _PerfilState extends State<Perfil> {
   }) {
     return TextField(
       controller: controller,
+      enabled: !ocupado,
       keyboardType: keyboardType,
       autofocus: true,
-      style: GoogleFonts.poppins(
-        fontSize: 13,
-        color: colorTextoPerfil,
-      ),
+      style: GoogleFonts.poppins(fontSize: 13, color: colorTextoPerfil),
       decoration: InputDecoration(
         isDense: true,
         filled: true,
@@ -160,22 +234,15 @@ class _PerfilState extends State<Perfil> {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(
-            color: Color(0xFFD8DCFF),
-          ),
+          borderSide: const BorderSide(color: Color(0xFFD8DCFF)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(
-            color: Color(0xFFD8DCFF),
-          ),
+          borderSide: const BorderSide(color: Color(0xFFD8DCFF)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(
-            color: colorPerfil,
-            width: 1.5,
-          ),
+          borderSide: const BorderSide(color: colorPerfil, width: 1.5),
         ),
       ),
     );
@@ -191,10 +258,7 @@ class _PerfilState extends State<Perfil> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 23,
-          horizontal: 17,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 23, horizontal: 17),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -205,11 +269,7 @@ class _PerfilState extends State<Perfil> {
                 color: colorPerfil.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(13),
               ),
-              child: Icon(
-                icono,
-                color: colorPerfil,
-                size: 23,
-              ),
+              child: Icon(icono, color: colorPerfil, size: 23),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -243,7 +303,7 @@ class _PerfilState extends State<Perfil> {
         children: [
           Expanded(
             child: OutlinedButton(
-              onPressed: cancelarEdicion,
+              onPressed: ocupado ? null : cancelarEdicion,
               style: OutlinedButton.styleFrom(
                 foregroundColor: colorPerfil,
                 side: const BorderSide(color: colorPerfil),
@@ -258,7 +318,7 @@ class _PerfilState extends State<Perfil> {
           const SizedBox(width: 12),
           Expanded(
             child: ElevatedButton(
-              onPressed: guardarPerfil,
+              onPressed: ocupado ? null : guardarPerfil,
               style: ElevatedButton.styleFrom(
                 backgroundColor: colorPerfil,
                 foregroundColor: Colors.white,
@@ -288,14 +348,12 @@ class _PerfilState extends State<Perfil> {
     final double altoPantalla = MediaQuery.sizeOf(context).height;
 
     // El fondo morado llega más abajo.
-    final double altoEncabezado =
-        (altoPantalla * 0.43).clamp(300.0, 350.0);
+    final double altoEncabezado = (altoPantalla * 0.43).clamp(300.0, 350.0);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FF),
       resizeToAvoidBottomInset: true,
-      bottomNavigationBar:
-          const BarraNavegacion(indiceActual: 3),
+      bottomNavigationBar: const BarraNavegacion(indiceActual: 3),
       body: Stack(
         children: [
           Positioned(
@@ -317,8 +375,7 @@ class _PerfilState extends State<Perfil> {
           SafeArea(
             bottom: false,
             child: SingleChildScrollView(
-              keyboardDismissBehavior:
-                  ScrollViewKeyboardDismissBehavior.onDrag,
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.fromLTRB(18, 12, 18, 28),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -341,15 +398,10 @@ class _PerfilState extends State<Perfil> {
                         decoration: BoxDecoration(
                           color: colorPerfil,
                           shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 2,
-                          ),
+                          border: Border.all(color: Colors.white, width: 2),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(
-                                alpha: 0.15,
-                              ),
+                              color: Colors.black.withValues(alpha: 0.15),
                               blurRadius: 8,
                               offset: const Offset(0, 3),
                             ),
@@ -384,15 +436,10 @@ class _PerfilState extends State<Perfil> {
                             height: 116,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 4,
-                              ),
+                              border: Border.all(color: Colors.white, width: 4),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(
-                                    alpha: 0.15,
-                                  ),
+                                  color: Colors.black.withValues(alpha: 0.15),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -401,7 +448,7 @@ class _PerfilState extends State<Perfil> {
                             child: CircleAvatar(
                               backgroundColor: const Color(0xFF30344D),
                               backgroundImage: fotoPerfil != null
-                                  ? FileImage(fotoPerfil!)
+                                  ? MemoryImage(fotoPerfil!)
                                   : null,
                               child: fotoPerfil == null
                                   ? const Icon(
@@ -444,9 +491,7 @@ class _PerfilState extends State<Perfil> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: const Color(0xFFEBEDFA),
-                      ),
+                      border: Border.all(color: const Color(0xFFEBEDFA)),
                       boxShadow: [
                         BoxShadow(
                           color: colorPerfil.withValues(alpha: 0.09),
@@ -475,9 +520,7 @@ class _PerfilState extends State<Perfil> {
                               ? () => iniciarEdicion('Nombre')
                               : null,
                           contenido: campoEditando == 'Nombre'
-                              ? campoTexto(
-                                  controller: nombreController,
-                                )
+                              ? campoTexto(controller: nombreController)
                               : textoPerfil(nombreController.text),
                         ),
                         const Divider(
@@ -495,8 +538,7 @@ class _PerfilState extends State<Perfil> {
                           contenido: campoEditando == 'Correo'
                               ? campoTexto(
                                   controller: correoController,
-                                  keyboardType:
-                                      TextInputType.emailAddress,
+                                  keyboardType: TextInputType.emailAddress,
                                 )
                               : textoPerfil(correoController.text),
                         ),
@@ -513,9 +555,7 @@ class _PerfilState extends State<Perfil> {
                               ? () => iniciarEdicion('Programa')
                               : null,
                           contenido: campoEditando == 'Programa'
-                              ? campoTexto(
-                                  controller: programaController,
-                                )
+                              ? campoTexto(controller: programaController)
                               : textoPerfil(programaController.text),
                         ),
                         if (campoEditando != null) botonesEdicion(),
@@ -529,6 +569,10 @@ class _PerfilState extends State<Perfil> {
                     Center(
                       child: TextButton.icon(
                         onPressed: () {
+                          SesionUsuario.cerrar();
+                          // Limpiar los datos temporales hasta su integracion con SQLite.
+                          limpiarInscripciones();
+                          limpiarBilletera();
                           Navigator.pushNamedAndRemoveUntil(
                             context,
                             '/login',

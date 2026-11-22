@@ -1,9 +1,93 @@
+import '../modelos/billetera.dart';
+
 import 'package:flutter/material.dart';
+
+import 'billetera_estado.dart';
 
 import '../barra_navegacion.dart';
 
-class WalletScreen extends StatelessWidget {
+class WalletScreen extends StatefulWidget {
   const WalletScreen({super.key});
+  @override
+  State<WalletScreen> createState() => _WalletScreenState();
+}
+
+class _WalletScreenState extends State<WalletScreen> {
+  bool _cargando = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargar();
+  }
+
+  Future<void> _cargar() async {
+    setState(() {
+      _cargando = true;
+      _error = null;
+    });
+    try {
+      await cargarBilletera();
+    } catch (_) {
+      if (mounted) setState(() => _error = 'No se pudo cargar la billetera');
+    } finally {
+      if (mounted) setState(() => _cargando = false);
+    }
+  }
+
+  Widget _movimiento(Movimiento movimiento) {
+    final recarga = movimiento.tipo == 'recarga';
+    final fecha = movimiento.fecha;
+    return Container(
+      width: double.infinity,
+      constraints: const BoxConstraints(minHeight: 66),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: recarga ? const Color(0xFFDFFBE8) : const Color(0xFFFFD7D8),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  movimiento.descripcion.isNotEmpty
+                      ? movimiento.descripcion
+                      : recarga
+                      ? 'Recarga de saldo'
+                      : 'Pago de evento',
+                  style: const TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${fecha.day}/${fecha.month}/${fecha.year} ${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF999999),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(
+              '${recarga ? '+' : '-'}${formatearPesos(movimiento.monto)}',
+              style: TextStyle(
+                fontSize: 16,
+                color: recarga
+                    ? const Color(0xFF20C65A)
+                    : const Color(0xFFFF383C),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +136,9 @@ class WalletScreen extends StatelessWidget {
                     child: Container(
                       width: 180,
                       height: 180,
-                      margin: const EdgeInsets.only(top: 0), // Ajusta el margen superior según sea necesario
+                      margin: const EdgeInsets.only(
+                        top: 0,
+                      ), // Ajusta el margen superior según sea necesario
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
@@ -62,7 +148,7 @@ class WalletScreen extends StatelessWidget {
                           width: 2,
                         ),
                       ),
-                      child: const Column(
+                      child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           FittedBox(
@@ -78,20 +164,27 @@ class WalletScreen extends StatelessWidget {
                             ),
                           ),
                           SizedBox(height: 8),
-                          Text(
-                            '\$100.000',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
+                          ValueListenableBuilder<int>(
+                            valueListenable: saldoBilletera,
+                            builder: (_, saldo, _) => Text(
+                              _cargando
+                                  ? '...'
+                                  : _error != null
+                                  ? '--'
+                                  : formatearPesos(saldo),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
                   ),
-                   // Espacio entre el círculo y el botón // Espacio entre el círculo y el botón
+                  // Espacio entre el círculo y el botón // Espacio entre el círculo y el botón
                   // Botón: mitad sobre morado y mitad sobre blanco
                   Positioned(
                     left: 70,
@@ -99,9 +192,12 @@ class WalletScreen extends StatelessWidget {
                     bottom: 0,
                     height: 50,
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/recharge');
-                      },
+                      onPressed: _cargando || _error != null
+                          ? null
+                          : () async {
+                              await Navigator.pushNamed(context, '/recharge');
+                              if (mounted) await _cargar();
+                            },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFF8C20),
                         foregroundColor: Colors.white,
@@ -138,97 +234,27 @@ class WalletScreen extends StatelessWidget {
 
                   const SizedBox(height: 20),
 
-                  // Pago de evento
-                  Container(
-                    width: double.infinity,
-                    constraints: const BoxConstraints(minHeight: 66),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
+                  if (_cargando)
+                    const Center(child: CircularProgressIndicator())
+                  else if (_error != null)
+                    TextButton(
+                      onPressed: _cargar,
+                      child: Text('$_error. Reintentar'),
+                    )
+                  else
+                    ValueListenableBuilder<List<Movimiento>>(
+                      valueListenable: movimientosBilletera,
+                      builder: (context, movimientos, _) => Column(
+                        children: movimientos.isEmpty
+                            ? [const Text('Aún no tienes movimientos')]
+                            : [
+                                for (final movimiento in movimientos) ...[
+                                  _movimiento(movimiento),
+                                  const SizedBox(height: 12),
+                                ],
+                              ],
+                      ),
                     ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFD7D8),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Pago de evento',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                '8 de octubre, 2026',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF999999),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(width: 12),
-                        Text(
-                          '-\$20.000',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Color(0xFFFF383C),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // Recarga de saldo
-                  Container(
-                    width: double.infinity,
-                    constraints: const BoxConstraints(minHeight: 66),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFDFFBE8),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Recarga de saldo',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                '10 de octubre, 2026',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF999999),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(width: 12),
-                        Text(
-                          '+\$25.000',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Color(0xFF20C65A),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
               ),
             ),

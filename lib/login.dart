@@ -1,3 +1,8 @@
+import 'wallet/billetera_estado.dart';
+import 'base_datos/usuario_dao.dart';
+import 'servicios/sesion_usuario.dart';
+import 'servicios/inscripciones_estado.dart';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -14,9 +19,13 @@ class _LoginState extends State<Login> {
   final TextEditingController correoController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  bool ocultarPassword = true; // Variable para controlar la visibilidad de la contraseña
+  bool ocultarPassword =
+      true; // Variable para controlar la visibilidad de la contraseña
 
-  void iniciarSesion() {
+  bool iniciando = false;
+
+  Future<void> iniciarSesion() async {
+    if (iniciando) return;
     final correo = correoController.text.trim();
     final password = passwordController.text;
 
@@ -52,25 +61,33 @@ class _LoginState extends State<Login> {
       return;
     }
 
-    // Validar longitud mínima de la contraseña.
-    if (password.length < 4) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.white,
-          content: Text(
-            'La contraseña debe tener mínimo 4 caracteres',
-            style: const TextStyle(color: Colors.red),
-          ),
-        ),
-      );
-      return;
+    setState(() => iniciando = true);
+    try {
+      final usuario = await UsuarioDao.autenticar(correo, password);
+      if (!mounted) return;
+      if (usuario == null) {
+        mostrarError('Correo o contrase?a incorrectos');
+        return;
+      }
+      SesionUsuario.iniciar(usuario);
+      limpiarInscripciones();
+      limpiarBilletera();
+      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+    } catch (_) {
+      if (mounted) {
+        mostrarError('No se pudo iniciar sesi?n. Int?ntalo nuevamente');
+      }
+    } finally {
+      if (mounted) setState(() => iniciando = false);
     }
+  }
 
-    // Continuar a la pantalla principal.
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      '/home',
-      (route) => false,
+  void mostrarError(String mensaje) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.white,
+        content: Text(mensaje, style: const TextStyle(color: Colors.red)),
+      ),
     );
   }
 
@@ -85,12 +102,9 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     final altoPantalla = MediaQuery.of(context).size.height;
 
-    final espacioSuperior =
-        (altoPantalla * 0.13).clamp(65.0, 100.0);
-    final espacioFormulario =
-        (altoPantalla * 0.065).clamp(24.0, 48.0);
-    final espacioInferior =
-        (altoPantalla * 0.06).clamp(20.0, 45.0);
+    final espacioSuperior = (altoPantalla * 0.13).clamp(65.0, 100.0);
+    final espacioFormulario = (altoPantalla * 0.065).clamp(24.0, 48.0);
+    final espacioInferior = (altoPantalla * 0.06).clamp(20.0, 45.0);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -113,7 +127,11 @@ class _LoginState extends State<Login> {
                   ),
                 ),
 
-                Positioned(top: 20, right: 150, child: _circulo(20, colorLogin)),
+                Positioned(
+                  top: 20,
+                  right: 150,
+                  child: _circulo(20, colorLogin),
+                ),
 
                 Positioned(top: 59, right: 10, child: _circulo(20, colorLogin)),
 
@@ -121,10 +139,7 @@ class _LoginState extends State<Login> {
                 Positioned(
                   bottom: 67,
                   left: -43,
-                  child: _circulo(
-                    86,
-                    const Color(0xFF858BFA),
-                  ),
+                  child: _circulo(86, const Color(0xFF858BFA)),
                 ),
 
                 Positioned(
@@ -141,9 +156,7 @@ class _LoginState extends State<Login> {
 
                 // Contenido adaptable a la pantalla.
                 SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       minHeight: constraints.maxHeight,
@@ -187,17 +200,14 @@ class _LoginState extends State<Login> {
                           controller: correoController,
                           keyboardType: TextInputType.emailAddress,
                           textInputAction: TextInputAction.next,
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                          ),
+                          style: GoogleFonts.poppins(fontSize: 14),
                           decoration: InputDecoration(
                             hintText: 'Correo electrónico',
                             hintStyle: GoogleFonts.poppins(
                               fontSize: 14,
                               color: Colors.grey.shade500,
                             ),
-                            contentPadding:
-                                const EdgeInsets.symmetric(
+                            contentPadding: const EdgeInsets.symmetric(
                               horizontal: 14,
                               vertical: 14,
                             ),
@@ -225,25 +235,21 @@ class _LoginState extends State<Login> {
                           obscureText: ocultarPassword,
                           textInputAction: TextInputAction.done,
                           onSubmitted: (_) => iniciarSesion(),
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                          ),
+                          style: GoogleFonts.poppins(fontSize: 14),
                           decoration: InputDecoration(
                             hintText: 'Contraseña',
                             hintStyle: GoogleFonts.poppins(
                               fontSize: 14,
                               color: Colors.grey.shade500,
                             ),
-                            contentPadding:
-                                const EdgeInsets.symmetric(
+                            contentPadding: const EdgeInsets.symmetric(
                               horizontal: 14,
                               vertical: 14,
                             ),
                             suffixIcon: IconButton(
                               onPressed: () {
                                 setState(() {
-                                  ocultarPassword =
-                                      !ocultarPassword;
+                                  ocultarPassword = !ocultarPassword;
                                 });
                               },
                               icon: Icon(
@@ -277,7 +283,7 @@ class _LoginState extends State<Login> {
                           width: double.infinity,
                           height: 42,
                           child: ElevatedButton(
-                            onPressed: iniciarSesion,
+                            onPressed: iniciando ? null : iniciarSesion,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: colorLogin,
                               foregroundColor: Colors.white,

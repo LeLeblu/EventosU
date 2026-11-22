@@ -1,8 +1,8 @@
 import 'evento.dart';
 
-/// Catálogo de eventos de ejemplo (datos fijos, sin base de datos).
-/// Las fotos son de Pexels (uso libre) y se cargan desde internet.
-
+/// Catálogo inicial para poblar SQLite sin sobrescribir registros existentes.
+/// Las URL identifican las fotografías incluidas en assets/eventos; la interfaz
+/// lee los BLOB de SQLite y no descarga imágenes de internet.
 
 // ----------------------------- Tecnología -----------------------------
 const conferenciaIaMock = Evento(
@@ -21,8 +21,7 @@ const conferenciaIaMock = Evento(
   ubicacion: 'Auditorio principal',
   precio: 'Gratis',
   cupos: 80,
-  imagen:
-      'https://images.pexels.com/photos/3321793/pexels-photo-3321793.jpeg?auto=compress&cs=tinysrgb&w=640',
+  imagen: 'https://images.pexels.com/photos/3321793/pexels-photo-3321793.jpeg?auto=compress&cs=tinysrgb&w=640',
 );
 
 const tallerFlutterMock = Evento(
@@ -39,8 +38,7 @@ const tallerFlutterMock = Evento(
   ubicacion: 'Sala de sistemas 3',
   precio: '\$15.000',
   cupos: 25,
-  imagen:
-      'https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=640',
+  imagen: 'https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=640',
 );
 
 const hackathonMock = Evento(
@@ -58,8 +56,7 @@ const hackathonMock = Evento(
   precio: 'Gratis',
   cupos: 8,
   disponibilidad: 'A punto de cerrar',
-  imagen:
-      'https://images.pexels.com/photos/7869041/pexels-photo-7869041.jpeg?auto=compress&cs=tinysrgb&w=640',
+  imagen: 'https://images.pexels.com/photos/7869041/pexels-photo-7869041.jpeg?auto=compress&cs=tinysrgb&w=640',
 );
 
 const foroMock = Evento(
@@ -75,8 +72,7 @@ const foroMock = Evento(
   ubicacion: 'Sala virtual',
   precio: 'Gratis',
   cupos: 120,
-  imagen:
-      'https://images.pexels.com/photos/5380618/pexels-photo-5380618.jpeg?auto=compress&cs=tinysrgb&w=640',
+  imagen: 'https://images.pexels.com/photos/5380618/pexels-photo-5380618.jpeg?auto=compress&cs=tinysrgb&w=640',
 );
 
 // ------------------------------ Deportes ------------------------------
@@ -93,8 +89,7 @@ const voleibolMock = Evento(
   ubicacion: 'Cancha Bloque 3',
   precio: 'Gratis',
   cupos: 30,
-  imagen:
-      'https://images.pexels.com/photos/6203560/pexels-photo-6203560.jpeg?auto=compress&cs=tinysrgb&w=640',
+  imagen: 'https://images.pexels.com/photos/6203560/pexels-photo-6203560.jpeg?auto=compress&cs=tinysrgb&w=640',
 );
 
 const futbolMock = Evento(
@@ -110,8 +105,7 @@ const futbolMock = Evento(
   ubicacion: 'Cancha B',
   precio: '\$10.000',
   cupos: 40,
-  imagen:
-      'https://images.pexels.com/photos/13048411/pexels-photo-13048411.jpeg?auto=compress&cs=tinysrgb&w=640',
+  imagen: 'https://images.pexels.com/photos/13048411/pexels-photo-13048411.jpeg?auto=compress&cs=tinysrgb&w=640',
 );
 
 const baloncestoMock = Evento(
@@ -128,8 +122,7 @@ const baloncestoMock = Evento(
   precio: '\$5.000',
   cupos: 0,
   disponibilidad: 'Agotado',
-  imagen:
-      'https://images.pexels.com/photos/2874717/pexels-photo-2874717.jpeg?auto=compress&cs=tinysrgb&w=640',
+  imagen: 'https://images.pexels.com/photos/2874717/pexels-photo-2874717.jpeg?auto=compress&cs=tinysrgb&w=640',
 );
 
 // ------------------------------- Música -------------------------------
@@ -147,8 +140,7 @@ const talentosMock = Evento(
   precio: 'Gratis',
   cupos: 6,
   disponibilidad: 'A punto de cerrar',
-  imagen:
-      'https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=640',
+  imagen: 'https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=640',
 );
 
 const conciertoMock = Evento(
@@ -163,8 +155,7 @@ const conciertoMock = Evento(
   ubicacion: 'Auditorio A',
   precio: '\$20.000',
   cupos: 35,
-  imagen:
-      'https://images.pexels.com/photos/1966012/pexels-photo-1966012.jpeg?auto=compress&cs=tinysrgb&w=640',
+  imagen: 'https://images.pexels.com/photos/1966012/pexels-photo-1966012.jpeg?auto=compress&cs=tinysrgb&w=640',
 );
 
 const festivalMock = Evento(
@@ -180,8 +171,7 @@ const festivalMock = Evento(
   ubicacion: 'Auditorio B',
   precio: '\$25.000',
   cupos: 100,
-  imagen:
-      'https://images.pexels.com/photos/2905996/pexels-photo-2905996.jpeg?auto=compress&cs=tinysrgb&w=640',
+  imagen: 'https://images.pexels.com/photos/2905996/pexels-photo-2905996.jpeg?auto=compress&cs=tinysrgb&w=640',
 );
 
 const djMock = Evento(
@@ -196,8 +186,7 @@ const djMock = Evento(
   ubicacion: 'Plazoleta de comidas',
   precio: '\$15.000',
   cupos: 50,
-  imagen:
-      'https://images.pexels.com/photos/219101/pexels-photo-219101.jpeg?auto=compress&cs=tinysrgb&w=640',
+  imagen: 'https://images.pexels.com/photos/219101/pexels-photo-219101.jpeg?auto=compress&cs=tinysrgb&w=640',
 );
 
 const eventosMock = [

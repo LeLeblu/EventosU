@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../barra_navegacion.dart';
 import 'evento.dart';
-import 'eventos_mock.dart';
+import '../base_datos/categoria_dao.dart';
+import '../base_datos/evento_dao.dart';
+import '../base_datos/datos_iniciales.dart';
+import '../base_datos/notificacion_dao.dart';
+import 'sesion_usuario.dart';
 import 'detalle_evento_screen.dart';
 import 'evento_card.dart';
 import 'eventos_categoria_screen.dart';
@@ -13,15 +17,57 @@ const Color _burbuja = Color(0xFF858BFA);
 
 /// Pantalla principal: encabezado con burbujas, buscador flotante,
 /// categorías, evento destacado y próximos eventos.
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
-  void _abrirCategoria(
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  List<Evento> _eventos = [];
+  List<String> _nombresCategorias = [];
+  bool _cargando = true;
+  bool _hayAvisos = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarCatalogo();
+  }
+
+  Future<void> _cargarCatalogo() async {
+    setState(() {
+      _cargando = true;
+      _error = null;
+    });
+    try {
+      await DatosIniciales.asegurarCatalogo();
+      final categorias = await CategoriaDao.listar();
+      final eventos = await EventoDao.listar();
+      final avisos = await (await NotificacionDao.abrir()).listar(
+        SesionUsuario.idUsuario,
+      );
+      if (!mounted) return;
+      setState(() {
+        _nombresCategorias = categorias.map((c) => c.nombre).toList();
+        _eventos = eventos;
+        _hayAvisos = avisos.any((aviso) => aviso['leida'] == 0);
+      });
+    } catch (_) {
+      if (mounted) setState(() => _error = 'No se pudo cargar el catálogo');
+    } finally {
+      if (mounted) setState(() => _cargando = false);
+    }
+  }
+
+  Future<void> _abrirCategoria(
     BuildContext context,
     String categoria, {
     String busqueda = '',
-  }) {
-    Navigator.push(
+  }) async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => EventosCategoriaScreen(
@@ -30,18 +76,29 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
     );
+    if (mounted) await _cargarCatalogo();
   }
 
-  void _abrirDetalle(BuildContext context, Evento evento) {
-    Navigator.push(
+  Future<void> _abrirDetalle(BuildContext context, Evento evento) async {
+    await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => DetalleEventoScreen(evento: evento)),
     );
+    if (mounted) await _cargarCatalogo();
   }
 
   @override
   Widget build(BuildContext context) {
     final ancho = MediaQuery.of(context).size.width;
+    final ahora = DateTime.now();
+    final proximos = _eventos
+        .where((e) => e.fechaHora?.isAfter(ahora) ?? false)
+        .toList();
+    final visibles = proximos.isEmpty ? _eventos : proximos;
+    final conCupos = visibles.where((e) => e.cupos > 0).toList();
+    final destacado = conCupos.isNotEmpty
+        ? conCupos.first
+        : visibles.firstOrNull;
 
     return Scaffold(
       backgroundColor: colorFondo,
@@ -54,13 +111,21 @@ class HomeScreen extends StatelessWidget {
             left: -40,
             child: circulo(90, _burbuja.withAlpha(60)),
           ),
-          Positioned(top: 520, left: 34, child: circulo(12, colorPrimario.withAlpha(110))),
+          Positioned(
+            top: 520,
+            left: 34,
+            child: circulo(12, colorPrimario.withAlpha(110)),
+          ),
           Positioned(
             bottom: 40,
             right: -36,
             child: circulo(110, _burbuja.withAlpha(55)),
           ),
-          Positioned(bottom: 160, right: 46, child: circulo(14, colorPrimario.withAlpha(110))),
+          Positioned(
+            bottom: 160,
+            right: 46,
+            child: circulo(14, colorPrimario.withAlpha(110)),
+          ),
 
           ListView(
             padding: EdgeInsets.zero,
@@ -70,11 +135,21 @@ class HomeScreen extends StatelessWidget {
               _seccion('Categorías', null),
               _categorias(context),
               const SizedBox(height: 22),
-              _seccion('Destacado de la semana', null),
-              _destacado(context, talentosMock),
+              if (_cargando) const LinearProgressIndicator(),
+              if (_error != null)
+                TextButton(
+                  onPressed: _cargarCatalogo,
+                  child: Text('$_error. Reintentar'),
+                ),
+              if (!_cargando && _error == null && _eventos.isEmpty)
+                const Center(child: Text('No hay eventos registrados')),
+              if (destacado != null) ...[
+                _seccion('Evento destacado', null),
+                _destacado(context, destacado),
+              ],
               const SizedBox(height: 18),
               _seccion(
-                'Próximos eventos',
+                proximos.isEmpty ? 'Eventos registrados' : 'Próximos eventos',
                 TextButton(
                   onPressed: () =>
                       _abrirCategoria(context, 'Todos los eventos'),
@@ -87,7 +162,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              for (final evento in proximosEventosMock)
+              for (final evento in visibles.take(4))
                 EventoCard(
                   evento: evento,
                   compacta: true,
@@ -133,54 +208,54 @@ class HomeScreen extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(bottom: 28),
           child: ClipRRect(
-          borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(36),
-            bottomRight: Radius.circular(36),
-          ),
-          child: Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF6673FF), colorPrimario, Color(0xFF4351E8)],
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(36),
+              bottomRight: Radius.circular(36),
+            ),
+            child: Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF6673FF), colorPrimario, Color(0xFF4351E8)],
+                ),
+              ),
+              child: Stack(
+                children: [
+                  // Burbujas del encabezado.
+                  Positioned(
+                    top: -60,
+                    right: -40,
+                    child: circulo(170, _burbuja.withAlpha(150)),
+                  ),
+                  Positioned(
+                    top: arriba + 70,
+                    right: 120,
+                    child: circulo(12, Colors.white.withAlpha(170)),
+                  ),
+                  Positioned(
+                    top: arriba + 8,
+                    left: ancho * 0.45,
+                    child: circulo(8, Colors.white.withAlpha(140)),
+                  ),
+                  Positioned(
+                    bottom: -50,
+                    left: -30,
+                    child: circulo(120, _burbuja.withAlpha(120)),
+                  ),
+                  Positioned(
+                    bottom: 40,
+                    left: 92,
+                    child: circulo(16, _burbuja),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(22, arriba + 22, 22, 62),
+                    child: _saludo(context),
+                  ),
+                ],
               ),
             ),
-            child: Stack(
-              children: [
-                // Burbujas del encabezado.
-                Positioned(
-                  top: -60,
-                  right: -40,
-                  child: circulo(170, _burbuja.withAlpha(150)),
-                ),
-                Positioned(
-                  top: arriba + 70,
-                  right: 120,
-                  child: circulo(12, Colors.white.withAlpha(170)),
-                ),
-                Positioned(
-                  top: arriba + 8,
-                  left: ancho * 0.45,
-                  child: circulo(8, Colors.white.withAlpha(140)),
-                ),
-                Positioned(
-                  bottom: -50,
-                  left: -30,
-                  child: circulo(120, _burbuja.withAlpha(120)),
-                ),
-                Positioned(
-                  bottom: 40,
-                  left: 92,
-                  child: circulo(16, _burbuja),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(22, arriba + 22, 22, 62),
-                  child: _saludo(context),
-                ),
-              ],
-            ),
-          ),
           ),
         ),
         // Buscador flotante.
@@ -255,9 +330,10 @@ class HomeScreen extends StatelessWidget {
     return ValueListenableBuilder<List<Inscripcion>>(
       valueListenable: inscripciones,
       builder: (context, lista, _) {
-        // El nombre sale del último formulario de inscripción.
-        final nombre =
-            lista.isEmpty ? 'Estudiante' : lista.last.nombre.split(' ').first;
+        final nombreCompleto = SesionUsuario.usuarioActual?.nombre.trim() ?? '';
+        final nombre = nombreCompleto.isEmpty
+            ? 'Estudiante'
+            : nombreCompleto.split(' ').first;
 
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -333,26 +409,26 @@ class HomeScreen extends StatelessWidget {
                       Icons.notifications_none_rounded,
                       color: colorPrimario,
                     ),
-                    onPressed: () => mostrarDemo(
-                      context,
-                      'Notificaciones',
-                      'No tienes notificaciones nuevas.',
-                    ),
+                    onPressed: () async {
+                      await Navigator.pushNamed(context, '/notificaciones');
+                      if (mounted) await _cargarCatalogo();
+                    },
                   ),
                 ),
-                Positioned(
-                  top: 2,
-                  right: 2,
-                  child: Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: colorNaranja,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
+                if (_hayAvisos)
+                  Positioned(
+                    top: 2,
+                    right: 2,
+                    child: Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: colorNaranja,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
           ],
@@ -367,7 +443,7 @@ class HomeScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [
-          for (final categoria in ['Tecnología', 'Deportes', 'Música'])
+          for (final categoria in _nombresCategorias)
             Expanded(child: _itemCategoria(context, categoria)),
         ],
       ),
@@ -377,10 +453,11 @@ class HomeScreen extends StatelessWidget {
   Widget _itemCategoria(BuildContext context, String categoria) {
     final tema = temaCategoria(categoria);
     final fondo = categoria == 'Tecnología' ? colorLavanda : tema.tarjeta;
-    final burbuja =
-        categoria == 'Tecnología' ? colorLavandaFuerte : tema.encabezado;
+    final burbuja = categoria == 'Tecnología'
+        ? colorLavandaFuerte
+        : tema.encabezado;
     final colorIcono = categoria == 'Tecnología' ? colorPrimario : tema.fuerte;
-    final cantidad = eventosMock.where((e) => e.categoria == categoria).length;
+    final cantidad = _eventos.where((e) => e.categoria == categoria).length;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 5),
@@ -463,21 +540,33 @@ class HomeScreen extends StatelessWidget {
             child: Stack(
               children: [
                 // Foto del evento muy suave detrás del degradado.
-                if (evento.imagen.isNotEmpty)
+                if (evento.imagenBytes != null)
                   Positioned.fill(
                     child: Opacity(
                       opacity: 0.25,
-                      child: Image.network(
-                        evento.imagen,
+                      child: Image.memory(
+                        evento.imagenBytes!,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stack) =>
                             const SizedBox.shrink(),
                       ),
                     ),
                   ),
-                Positioned(top: -40, right: -30, child: circulo(140, _burbuja.withAlpha(140))),
-                Positioned(bottom: -30, right: 70, child: circulo(70, _burbuja.withAlpha(110))),
-                Positioned(top: 18, right: 110, child: circulo(10, Colors.white.withAlpha(150))),
+                Positioned(
+                  top: -40,
+                  right: -30,
+                  child: circulo(140, _burbuja.withAlpha(140)),
+                ),
+                Positioned(
+                  bottom: -30,
+                  right: 70,
+                  child: circulo(70, _burbuja.withAlpha(110)),
+                ),
+                Positioned(
+                  top: 18,
+                  right: 110,
+                  child: circulo(10, Colors.white.withAlpha(150)),
+                ),
                 Positioned(
                   right: 18,
                   bottom: 18,
@@ -501,17 +590,17 @@ class HomeScreen extends StatelessWidget {
                           color: colorNaranja,
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.local_fire_department_rounded,
                               size: 14,
                               color: Colors.white,
                             ),
                             SizedBox(width: 4),
                             Text(
-                              '¡Últimos cupos!',
+                              evento.disponibilidad,
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,

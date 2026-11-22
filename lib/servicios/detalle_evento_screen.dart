@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../wallet/payment_screen.dart';
+import '../base_datos/evento_dao.dart';
+import '../base_datos/inscripcion_dao.dart';
 import 'evento.dart';
 import 'evento_card.dart';
 import 'formulario_inscripcion_screen.dart';
@@ -9,13 +11,64 @@ import 'inscripciones_estado.dart';
 /// Detalle del evento (diseño "Detalle evento" del Figma):
 /// imagen superior, hoja blanca redondeada con los datos, recuadro de precio
 /// y botón naranja "Inscribirse".
-class DetalleEventoScreen extends StatelessWidget {
+class DetalleEventoScreen extends StatefulWidget {
   final Evento evento;
 
   const DetalleEventoScreen({super.key, required this.evento});
 
   @override
+  State<DetalleEventoScreen> createState() => _DetalleEventoScreenState();
+}
+
+class _DetalleEventoScreenState extends State<DetalleEventoScreen> {
+  Evento? _evento;
+  bool _cargando = true;
+  String? _error;
+  Evento get evento => _evento!;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarEvento();
+  }
+
+  Future<void> _cargarEvento() async {
+    setState(() {
+      _cargando = true;
+      _error = null;
+    });
+    try {
+      final id = widget.evento.idEvento;
+      final actual = id == null ? null : await EventoDao.obtenerPorId(id);
+      await cargarInscripciones();
+      if (!mounted) return;
+      setState(() {
+        _evento = actual;
+        if (actual == null) _error = 'Este evento ya no está disponible';
+      });
+    } catch (_) {
+      if (mounted) setState(() => _error = 'No se pudo cargar el evento');
+    } finally {
+      if (mounted) setState(() => _cargando = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_cargando || _error != null) {
+      return Scaffold(
+        backgroundColor: colorFondo,
+        appBar: AppBar(title: const Text('Detalle del evento')),
+        body: Center(
+          child: _cargando
+              ? const CircularProgressIndicator()
+              : TextButton(
+                  onPressed: _cargarEvento,
+                  child: Text('$_error. Reintentar'),
+                ),
+        ),
+      );
+    }
     return Scaffold(
       backgroundColor: colorFondo,
       body: Stack(
@@ -139,7 +192,7 @@ class DetalleEventoScreen extends StatelessWidget {
     return ValueListenableBuilder<List<Inscripcion>>(
       valueListenable: inscripciones,
       builder: (context, lista, _) {
-        final mia = lista.where((i) => i.evento.nombre == evento.nombre);
+        final mia = lista.where((i) => mismoEvento(i.evento, evento));
         if (mia.isNotEmpty && mia.first.estado == 'Pendiente de pago') {
           return BotonEvento(
             texto: 'Completar pago',
@@ -168,15 +221,71 @@ class DetalleEventoScreen extends StatelessWidget {
         return BotonEvento(
           texto: evento.esGratis ? 'Inscribirse' : 'Inscribirse y pagar',
           color: colorNaranja,
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => FormularioInscripcionScreen(evento: evento),
-            ),
-          ),
+          onPressed: () => _confirmarInscripcion(context),
         );
       },
     );
+  }
+
+  Future<void> _confirmarInscripcion(BuildContext context) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (_) => FormularioInscripcionScreen(evento: evento),
+    );
+    if (!context.mounted || confirmar != true) return;
+    if (estaInscrito(evento) || evento.agotado) return;
+    if (!evento.esGratis) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => PaymentScreen(evento: evento)),
+      );
+      if (mounted) await _cargarEvento();
+      return;
+    }
+
+    try {
+      final registrada = await agregarInscripcion(
+        Inscripcion(
+          evento: evento,
+          estado: evento.esGratis ? 'Inscrito' : 'Pendiente de pago',
+        ),
+      );
+      if (!registrada) return;
+    } on ErrorInscripcion catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(error.mensaje)));
+        await _cargarEvento();
+      }
+      return;
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'No se pudo completar la inscripción. Inténtalo nuevamente',
+            ),
+          ),
+        );
+      }
+      return;
+    }
+    if (!context.mounted) return;
+    final guardada = inscripciones.value
+        .where((i) => mismoEvento(i.evento, evento))
+        .firstOrNull;
+    if (guardada != null) setState(() => _evento = guardada.evento);
+    if (evento.esGratis) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Inscripción confirmada en ${evento.nombre}')),
+      );
+      await _cargarEvento();
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => PaymentScreen(evento: evento)),
+      );
+    }
   }
 }
 
@@ -190,8 +299,8 @@ List<Widget> contenidoDetalleEvento(Evento e, {String? estado}) {
   final iconoEstado = estado == null
       ? iconoDisponibilidad(textoEstado)
       : (estado == 'Inscrito'
-          ? Icons.check_circle_rounded
-          : Icons.schedule_rounded);
+            ? Icons.check_circle_rounded
+            : Icons.schedule_rounded);
 
   return [
     Text(

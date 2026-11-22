@@ -1,7 +1,14 @@
+import '../base_datos/billetera_dao.dart';
+import '../servicios/sesion_usuario.dart';
+
 import 'package:flutter/material.dart';
+
+import 'billetera_estado.dart';
+
 import 'package:flutter/services.dart';
 
-class RechargeScreen extends StatefulWidget { /// para introducir datos
+class RechargeScreen extends StatefulWidget {
+  /// para introducir datos
   const RechargeScreen({super.key});
 
   @override
@@ -9,20 +16,89 @@ class RechargeScreen extends StatefulWidget { /// para introducir datos
 }
 
 class _RechargeScreenState extends State<RechargeScreen> {
-
   final TextEditingController _valorController = TextEditingController();
   String? _errorMonto;
+  String? _errorCarga;
+  bool _cargando = true;
+  bool _recargando = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargar();
+  }
+
+  Future<void> _cargar() async {
+    setState(() {
+      _cargando = true;
+      _errorCarga = null;
+    });
+    try {
+      await cargarBilletera();
+    } catch (_) {
+      if (mounted) setState(() => _errorCarga = 'No se pudo cargar el saldo');
+    } finally {
+      if (mounted) setState(() => _cargando = false);
+    }
+  }
+
+  Future<void> _recargar() async {
+    if (_recargando || _cargando || _errorCarga != null) return;
+    final texto = _valorController.text.trim();
+    final monto = int.tryParse(texto);
+    if (!RegExp(r'^[0-9]+$').hasMatch(texto) || monto == null || monto <= 0) {
+      setState(
+        () => _errorMonto = 'Ingresa un monto entero mayor que cero y dentro del rango permitido',
+      );
+      return;
+    }
+    final idUsuario = SesionUsuario.idUsuario;
+    setState(() {
+      _recargando = true;
+      _errorMonto = null;
+    });
+    try {
+      await recargarBilletera(monto);
+      if (!mounted || SesionUsuario.usuarioActual?.idUsuarios != idUsuario) {
+        return;
+      }
+      _valorController.clear();
+      await showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Recarga exitosa'),
+          content: Text('La recarga de ${formatearPesos(monto)} fue exitosa.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Aceptar'),
+            ),
+          ],
+        ),
+      );
+    } on ErrorBilletera catch (error) {
+      if (mounted) setState(() => _errorMonto = error.mensaje);
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => _errorMonto =
+              'No se pudo completar la recarga. Inténtalo nuevamente',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _recargando = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
-      
       appBar: AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Recargar saldo', 
+        title: const Text(
+          'Recargar saldo',
           style: TextStyle(
             color: Colors.black,
             fontSize: 20,
@@ -41,161 +117,134 @@ class _RechargeScreenState extends State<RechargeScreen> {
             topRight: Radius.circular(28),
           ),
         ),
-        
+
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(28),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start, // Alineación a la izquierda
+            crossAxisAlignment:
+                CrossAxisAlignment.start, // Alineación a la izquierda
             children: [
-
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
-                  boxShadow: const[
+                  boxShadow: const [
                     BoxShadow(
                       color: Color(0x26000000),
                       blurRadius: 4,
                       offset: Offset(0, 3),
                     ),
                   ],
-                ), 
-                child: const Column(
+                ),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Saldo actual',
-                      style: TextStyle(
-                        fontSize: 14,
-                      ),
-                    ),
+                    Text('Saldo actual', style: TextStyle(fontSize: 14)),
                     SizedBox(height: 8),
-                    Text('\$100.000',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                    ValueListenableBuilder<int>(
+                      valueListenable: saldoBilletera,
+                      builder: (_, saldo, _) => Text(
+                        _cargando
+                            ? '...'
+                            : _errorCarga != null
+                            ? '--'
+                            : formatearPesos(saldo),
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
 
-              // Espacio entre la sección de saldo actual y la sección de recarga
-            const SizedBox(height: 16),
-             //Sección de saldo actual
-            const Text('Ingrese valor a recargar',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            
-            // Campo de texto para ingresar el monto a recargar
-            const SizedBox(height: 10),
-            
-            TextField(
-              controller: _valorController,
-              keyboardType: TextInputType.number,
-              inputFormatters: [
-                TextInputFormatter.withFunction((oldValue, newValue) {
-                  final esValido = !RegExp(r'[^0-9]').hasMatch(newValue.text);
-                  setState(() {
-                    _errorMonto = esValido
-                        ? null
-                        : 'Ingresa solo números, sin puntos, comas ni letras. Ej: 10000';
-                  });
-                  return esValido ? newValue : oldValue;
-                }),
-              ],
-              // para que solo se puedan ingresar números
-          
-              decoration: InputDecoration(
-                hintText: 'Ej: 10000',
-                errorText: _errorMonto,
-                errorMaxLines: 3,
-                filled: true,
-                fillColor: Colors.white,
-                
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                 // para redondear los bordes del TextField
-                ),  
-              ),
-            ),
-
-            const SizedBox(height: 20), // Espacio entre el TextField y el botón de recarga
-            // Botón para recargar saldo
-            SizedBox(
-              width: double.infinity,
-              
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFF8C20),
-                  foregroundColor: Colors.white, 
-                  minimumSize: const Size(double.infinity, 48), // para que el botón ocupe todo el ancho disponible
-                  elevation: 3,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                
-                textStyle: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-
+              if (_errorCarga != null)
+                TextButton(
+                  onPressed: _cargar,
+                  child: Text('$_errorCarga. Reintentar'),
                 ),
-                ), 
-                onPressed: () {
-                  // Acción para recargar saldo 
-                  final valor = _valorController.text.trim();
-
-                  // Validar que el valor ingresado no esté vacío
-                  final monto = int.tryParse(valor);
-                  if (monto == null || monto <= 0) {
-                    showDialog<void>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Monto inválido'),
-                        content: const Text(
-                          'Ingresa un monto mayor que cero, solo con números y sin puntos ni comas. Ej: 10000',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            child: const Text('Aceptar',
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                    return;
-                  }
-
-                  // Simulación de recarga exitosa
-                  showDialog<void>(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Recarga exitosa'),
-                      content: Text('La recarga de \$$valor fue exitosa.'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: const Text('Aceptar'),
-                        ),
-                      ],
-                    ),
-                  );
-                  },
-                child: const Text('Recargar saldo'), // Texto del botón
+              // Espacio entre la sección de saldo actual y la sección de recarga
+              const SizedBox(height: 16),
+              //Sección de saldo actual
+              const Text(
+                'Ingrese valor a recargar',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
-            ),
-          ],
+
+              // Campo de texto para ingresar el monto a recargar
+              const SizedBox(height: 10),
+
+              TextField(
+                controller: _valorController,
+                enabled: !_recargando && !_cargando && _errorCarga == null,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  TextInputFormatter.withFunction((oldValue, newValue) {
+                    final esValido = !RegExp(r'[^0-9]').hasMatch(newValue.text);
+                    setState(() {
+                      _errorMonto = esValido ? null : 'Ingresa solo números, sin puntos, comas ni letras. Ej: 10000';
+                    });
+                    return esValido ? newValue : oldValue;
+                  }),
+                ],
+                // para que solo se puedan ingresar números
+
+                decoration: InputDecoration(
+                  hintText: 'Ej: 10000',
+                  errorText: _errorMonto,
+                  errorMaxLines: 3,
+                  filled: true,
+                  fillColor: Colors.white,
+
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    // para redondear los bordes del TextField
+                  ),
+                ),
+              ),
+
+              const SizedBox(
+                height: 20,
+              ), // Espacio entre el TextField y el botón de recarga
+              // Botón para recargar saldo
+              SizedBox(
+                width: double.infinity,
+
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFF8C20),
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(
+                      double.infinity,
+                      48,
+                    ), // para que el botón ocupe todo el ancho disponible
+                    elevation: 3,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onPressed: _recargando || _cargando || _errorCarga != null
+                      ? null
+                      : _recargar,
+                  child: const Text('Recargar saldo'), // Texto del botón
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-    ),
-    ),
-  );
+    );
   } // Fin del método build
-// Liberar recursos del controlador de texto
+
+  // Liberar recursos del controlador de texto
   @override
   void dispose() {
     _valorController.dispose();

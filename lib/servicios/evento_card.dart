@@ -86,20 +86,20 @@ IconData iconoDisponibilidad(String disponibilidad) {
 
 // --------------------------------------------------------------- utilidades
 List<BoxShadow> sombraSuave() => [
-      BoxShadow(
-        color: Colors.black.withAlpha(20),
-        blurRadius: 14,
-        offset: const Offset(0, 5),
-      ),
-    ];
+  BoxShadow(
+    color: Colors.black.withAlpha(20),
+    blurRadius: 14,
+    offset: const Offset(0, 5),
+  ),
+];
 
 List<BoxShadow> sombraColor(Color color) => [
-      BoxShadow(
-        color: color.withAlpha(90),
-        blurRadius: 12,
-        offset: const Offset(0, 5),
-      ),
-    ];
+  BoxShadow(
+    color: color.withAlpha(90),
+    blurRadius: 12,
+    offset: const Offset(0, 5),
+  ),
+];
 
 /// Decoración de los campos de texto (igual a login y registro).
 InputDecoration decoracionCampo(String etiqueta, IconData icono) {
@@ -144,10 +144,10 @@ AppBar barraSuperior(String titulo) {
 }
 
 Widget circulo(double tamano, Color color) => Container(
-      width: tamano,
-      height: tamano,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-    );
+  width: tamano,
+  height: tamano,
+  decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+);
 
 /// Fila con ícono y texto, como en las tarjetas del diseño.
 Widget filaInfo(
@@ -221,7 +221,10 @@ class BotonEvento extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (icono != null) ...[Icon(icono, size: 20), const SizedBox(width: 8)],
+            if (icono != null) ...[
+              Icon(icono, size: 20),
+              const SizedBox(width: 8),
+            ],
             Flexible(child: Text(texto, overflow: TextOverflow.ellipsis)),
           ],
         ),
@@ -280,19 +283,19 @@ class PortadaEvento extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-                // Foto del evento. Mientras carga, o si no hay internet,
+                // Foto almacenada en SQLite. Si falta o no puede decodificarse,
                 // se ve la ilustración de la categoría que está debajo.
-                if (evento.imagen.isNotEmpty)
+                if (evento.imagenBytes != null)
                   Positioned.fill(
-                    child: Image.network(
-                      evento.imagen,
+                    child: Image.memory(
+                      evento.imagenBytes!,
                       fit: BoxFit.cover,
                       frameBuilder: (context, child, frame, sincrono) =>
                           AnimatedOpacity(
-                        opacity: frame == null ? 0 : 1,
-                        duration: const Duration(milliseconds: 300),
-                        child: child,
-                      ),
+                            opacity: frame == null ? 0 : 1,
+                            duration: const Duration(milliseconds: 300),
+                            child: child,
+                          ),
                       errorBuilder: (context, error, stack) =>
                           const SizedBox.shrink(),
                     ),
@@ -333,8 +336,8 @@ class EventoCard extends StatelessWidget {
     final iconoEstado = estadoPersonalizado == null
         ? Icons.check_circle_outline_rounded
         : (estado == 'Inscrito'
-            ? Icons.check_circle_outline_rounded
-            : Icons.schedule_rounded);
+              ? Icons.check_circle_outline_rounded
+              : Icons.schedule_rounded);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -377,14 +380,20 @@ class EventoCard extends StatelessWidget {
                             Icons.calendar_month_outlined,
                             evento.fecha.replaceAll(' de 2026', ''),
                           ),
-                          filaInfo(Icons.location_on_outlined, evento.ubicacion),
+                          filaInfo(
+                            Icons.location_on_outlined,
+                            evento.ubicacion,
+                          ),
                           filaInfo(Icons.access_time_rounded, evento.hora),
                         ] else ...[
                           filaInfo(
                             Icons.calendar_month_outlined,
                             '${evento.fecha.replaceAll(' de 2026', '')} · ${evento.hora}',
                           ),
-                          filaInfo(Icons.location_on_outlined, evento.ubicacion),
+                          filaInfo(
+                            Icons.location_on_outlined,
+                            evento.ubicacion,
+                          ),
                           filaInfo(
                             iconoEstado,
                             estado,
